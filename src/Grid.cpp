@@ -28,12 +28,12 @@ Grid::Grid(const std::string& init)
 		for(uint16_t row = 0; row < rowNum; ++row)
 		{
 			pCell cell;
-			uint8_t cellType;
+			uint8_t cellTypeInt;
 
-			if(!(ss >> cellType))
+			if(!(ss >> cellTypeInt))
 				THROW("Error while reading grid");
 
-			cell = pCell(new Cell(cellType));
+			cell = pCell(new Cell(intToCellType(cellTypeInt)));
 			columnVecRef.push_back(cell);
 		}
 	}
@@ -52,7 +52,35 @@ uint16_t Grid::colNum() const
 }
 
 /***********************************************/
+pGrid Grid::getEmptyCopy() const
+{
+	pGrid copy(new Grid);
+	size_t col = 0;
+
+	copy->_grid.reserve(colNum());
+
+	for(auto const& colVecRef : _grid)
+	{
+		size_t row = 0;
+		auto& colCopiedVecRef = copy->_grid.at(col++);
+
+		colCopiedVecRef.reserve(rowNum());
+
+		for(auto const& cellRef : colVecRef)
+		{
+			colCopiedVecRef.at(row++) = cellRef->getEmptyCopy();
+		}
+	}
+}
+
+/***********************************************/
 uint16_t Grid::rowNum() const
 {
 	return _grid.at(0).size();
+}
+
+/***********************************************/
+Grid::Grid()
+{
+
 }

@@ -8,10 +8,14 @@
 #include <sstream>
 /*--------------------------------------------------------------------------*/
 
+//defines
+#define THROW(x) { std::stringstream ss; ss << "Error: " << (x) << "; func: " __PRETTY_FUNCTION__; throw Exception(ss.str()); }
+
 //forward declarations
 class Archer;
 class Cell;
 class Evolution;
+class Game;
 class Generation;
 class Grid;
 class Knight;
@@ -26,6 +30,7 @@ class Unit;
 using pArcher = std::shared_ptr<Archer>;
 using pCell = std::shared_ptr<Cell>;
 using pEvolution = std::shared_ptr<Evolution>;
+using pGame = std::shared_ptr<Game>;
 using pGeneration = std::shared_ptr<Generation>;
 using pGrid = std::shared_ptr<Grid>;
 using pKnight = std::shared_ptr<Knight>;
@@ -50,9 +55,6 @@ public:
 private:
 	std::string _what;
 };
-
-//defines
-#define THROW(x) { std::stringstream ss; ss << "Error: " << (x) << "; func: " __PRETTY_FUNCTION__; throw Exception(ss.str()); }
 
 #endif // GLOBAL_H
 
