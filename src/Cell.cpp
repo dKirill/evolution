@@ -3,10 +3,9 @@
 /*--------------------------------------------------------------------------*/
 
 /***********************************************/
-Cell::Cell(const CellType cellType) : _cellType(cellType)
+Cell::Cell(const CellType cellType_) : _cellType(cellType_)
 {
-	if(cellType() > 3)
-		THROW("Invalid cell type");
+
 }
 
 /***********************************************/
@@ -19,23 +18,6 @@ Cell::~Cell()
 CellType Cell::cellType() const
 {
 	return _cellType;
-}
-
-/***********************************************/
-bool Cell::free()
-{
-	if(occupiable() == false || !occupier())
-		return false;
-
-	_occupier.reset();
-
-	return true;
-}
-
-/***********************************************/
-pCell Cell::getEmptyCopy() const
-{
-	return pCell(new Cell(cellType()));
 }
 
 /***********************************************/
@@ -77,12 +59,22 @@ pUnit Cell::occupier() const
 }
 
 /***********************************************/
-bool Cell::occupy(pUnit entering)
+void Cell::free()
 {
-	if(occupiable() == false || occupier())
-		return false;
+	_occupier.reset();
+}
+
+/***********************************************/
+pCell Cell::getEmptyCopy() const
+{
+	return pCell(new Cell(cellType()));
+}
+
+/***********************************************/
+void Cell::occupy(pUnit entering)
+{
+	if(occupiable() == false)
+		THROW("Attempt to occupy unoccupiable cell");
 
 	_occupier = entering;
-
-	return true;
 }

@@ -6,10 +6,10 @@
 #include <exception>
 #include <memory>
 #include <sstream>
+#include <vector>
 /*--------------------------------------------------------------------------*/
-
-//defines
-#define THROW(x) { std::stringstream ss; ss << "Error: " << (x) << "; func: " __PRETTY_FUNCTION__; throw Exception(ss.str()); }
+#include <QtCore/QDebug>
+/*--------------------------------------------------------------------------*/
 
 //forward declarations
 class Archer;
@@ -22,6 +22,9 @@ class Knight;
 class Match;
 class Pikeman;
 class Player;
+class Route;
+class Score;
+class ScoreTable;
 class Swordsman;
 class Tournament;
 class Unit;
@@ -37,9 +40,16 @@ using pKnight = std::shared_ptr<Knight>;
 using pMatch = std::shared_ptr<Match>;
 using pPikeman = std::shared_ptr<Pikeman>;
 using pPlayer = std::shared_ptr<Player>;
+using pRoute = std::shared_ptr<Route>;
+using pScore = std::shared_ptr<Score>;
+using pScoreTable = std::shared_ptr<ScoreTable>;
 using pSwordsman = std::shared_ptr<Swordsman>;
 using pTournament = std::shared_ptr<Tournament>;
 using pUnit = std::shared_ptr<Unit>;
+
+using CellInt = uint16_t;
+using ScoreInt = uint8_t;
+using Scores = std::vector<pScore>;
 
 //custom exception
 class Exception : public std::exception
@@ -55,6 +65,9 @@ public:
 private:
 	std::string _what;
 };
+
+//defines
+#define THROW(x) { std::stringstream ss; ss << "Error: " << x << "; func: " << __PRETTY_FUNCTION__; throw Exception(ss.str()); }
 
 #endif // GLOBAL_H
 

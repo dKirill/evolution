@@ -19,21 +19,24 @@ enum class CellType : uint8_t
 class Cell : public boost::noncopyable
 {
 public:
-	Cell(const CellType cellType);
+	Cell(const CellType cellType_);
 
 	~Cell();
 
 	CellType cellType() const;
-	pCell getEmptyCopy() const;
-	bool free();
 	static CellType intToCellType(const uint8_t intval);
 	bool occupiable() const;
 	pUnit occupier() const;
-	bool occupy(pUnit entering);
 
 private:
+	void free();
+	pCell getEmptyCopy() const;
+	void occupy(pUnit entering);
+
 	CellType _cellType;
 	pUnit _occupier;
+
+	friend class Grid;
 };
 
 #endif // CELL_H

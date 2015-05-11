@@ -29,15 +29,18 @@ public:
 	Grid(const std::string& init);
 	~Grid();
 
-	uint16_t colNum() const;
+	pCell at(const CellInt col, const CellInt row) const;
+	CellInt colNum() const;
 	pGrid getEmptyCopy() const;
-	uint16_t rowNum() const;
+	CellInt rowNum() const;
+	bool setState(const GridState newstate, pPlayer permissionRecipient = pPlayer());
 	GridState state() const;
 
 private:
 	Grid();
 
 	std::vector<std::vector<pCell>> _grid;
+	pPlayer _permissionOwner;
 	GridState _state;
 };
 
