@@ -7,13 +7,14 @@
 #include "Global.h"
 /*--------------------------------------------------------------------------*/
 
-class Game
+class Game : public std::enable_shared_from_this<Game>//TODO consider turn-history for visualizing
 {
 public:
 	Game(pGrid grid_, pPlayer playerLeft_, pPlayer playerRight_, bool ftr, pScoreTable scoreTable);
 	~Game();
 
 	pGrid grid() const;
+	void move(pRoute route);
 	pPlayer playerLeft() const;
 	pPlayer playerRight() const;
 	void run();
@@ -29,6 +30,7 @@ private:
 	pPlayer _playerLeft;
 	pPlayer _playerRight;
 	pScoreTable _scoreTable;
+	std::set<pUnit> _unitsMovedThisTurn;
 };
 
 #endif // GAME_H

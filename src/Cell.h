@@ -36,7 +36,7 @@ private:
 	CellType _cellType;
 	pUnit _occupier;
 
-	friend class Grid;
+	friend class Game;
 };
 
 #endif // CELL_H

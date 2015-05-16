@@ -10,15 +10,15 @@
 class Match : public QRunnable
 {
 public:
-	Match(pGrid grid_, pPlayer player1_, pPlayer player2_, uint8_t numOfRounds);
+	Match(pGrid grid_, pPlayer player1_, pPlayer player2_, const RoundInt numOfRounds);
 	~Match();
 
 	pGrid grid() const;
 	bool isOver() const;
 	pPlayer player1() const;
 	pPlayer player2() const;
-	uint8_t roundsNum() const;
-	uint8_t roundsPlayed() const;
+	RoundInt roundsNum() const;
+	RoundInt roundsPlayed() const;
 	virtual void run();
 	pScoreTable scoreTable() const;
 

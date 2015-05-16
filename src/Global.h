@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <exception>
 #include <memory>
+#include <set>
 #include <sstream>
 #include <vector>
 /*--------------------------------------------------------------------------*/
@@ -12,43 +13,44 @@
 /*--------------------------------------------------------------------------*/
 
 //forward declarations
-class Archer;
 class Cell;
 class Evolution;
 class Game;
 class Generation;
 class Grid;
-class Knight;
 class Match;
-class Pikeman;
 class Player;
 class Route;
 class Score;
 class ScoreTable;
-class Swordsman;
 class Tournament;
 class Unit;
 
 //ptr aliases
-using pArcher = std::shared_ptr<Archer>;
 using pCell = std::shared_ptr<Cell>;
 using pEvolution = std::shared_ptr<Evolution>;
 using pGame = std::shared_ptr<Game>;
 using pGeneration = std::shared_ptr<Generation>;
 using pGrid = std::shared_ptr<Grid>;
-using pKnight = std::shared_ptr<Knight>;
 using pMatch = std::shared_ptr<Match>;
-using pPikeman = std::shared_ptr<Pikeman>;
 using pPlayer = std::shared_ptr<Player>;
 using pRoute = std::shared_ptr<Route>;
 using pScore = std::shared_ptr<Score>;
 using pScoreTable = std::shared_ptr<ScoreTable>;
-using pSwordsman = std::shared_ptr<Swordsman>;
 using pTournament = std::shared_ptr<Tournament>;
 using pUnit = std::shared_ptr<Unit>;
 
+using AttackInt = uint16_t;
 using CellInt = uint16_t;
+using HealthInt = uint16_t;
+using RangeInt = uint8_t;
+using RoundInt = uint8_t;
 using ScoreInt = uint8_t;
+
+using AttackSpreadFloat = float;
+
+using Matches = std::set<pMatch>;
+using Players = std::set<pPlayer>;
 using Scores = std::vector<pScore>;
 
 //custom exception

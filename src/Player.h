@@ -15,13 +15,11 @@ class Player
 {
 public:
 	Player();
-	~Player();
+	virtual ~Player();
 
-	void initGrid(pGrid grid, Side side);
-	void turn(pGrid grid);
-
-private:
-
+	virtual void initGrid(pGame game, Side side) = 0;
+	virtual void turn(pGame game) = 0;
 };
 
 #endif // PLAYER_H
+

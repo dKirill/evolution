@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "Grid.h"
 #include "Player.h"
+#include "Route.h"
 #include "ScoreTable.h"
 #include "Unit.h"
 /*--------------------------------------------------------------------------*/
@@ -23,6 +24,23 @@ Game::~Game()
 pGrid Game::grid() const
 {
 	return _grid;
+}
+
+/***********************************************/
+void Game::move(pRoute route)
+{
+	if(route->unit()->owner() != _currPlayer)
+		THROW("Player's trying to move opp's unit");
+
+	if(route->unit() != route->route().at(0)->occupier())
+		THROW("Unit is not occupier");
+
+	if(_unitsMovedThisTurn.find(route->unit()) != _unitsMovedThisTurn.end())
+		THROW("Unit can't move more than once per turn");
+	else
+		_unitsMovedThisTurn.insert(route->unit());
+
+	//TODO turn
 }
 
 /***********************************************/
@@ -51,14 +69,15 @@ void Game::run()
 
 	grid()->setState(GridState::Initial);
 	grid()->setState(GridState::LeftPlayerPlacing);
-	playerLeft()->initGrid(grid(), Side::Left);
+	playerLeft()->initGrid(shared_from_this(), Side::Left);
 	grid()->setState(GridState::RightPlayerPlacing);
-	playerLeft()->initGrid(grid(), Side::Right);
+	playerLeft()->initGrid(shared_from_this(), Side::Right);
 
 	while(!isOver())
 	{
 		grid()->setState(GridState::Turn, nextPlayer());
-		_currPlayer->turn(grid());
+		_currPlayer->turn(shared_from_this());
+		_unitsMovedThisTurn.clear();
 	}
 
 	grid()->setState(GridState::Initial);

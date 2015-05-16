@@ -13,16 +13,3 @@ Player::~Player()
 {
 
 }
-
-
-/***********************************************/
-void Player::initGrid(pGrid grid, Side side)
-{
-	//TODO fill your side of the grid
-}
-
-/***********************************************/
-void Player::turn(pGrid grid)
-{
-	//TODO make turn
-}

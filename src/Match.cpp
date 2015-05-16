@@ -1,13 +1,14 @@
 /*--------------------------------------------------------------------------*/
 #include "Game.h"
+#include "Grid.h"
 #include "Match.h"
 #include "ScoreTable.h"
 /*--------------------------------------------------------------------------*/
 
 /***********************************************/
-Match::Match(pGrid grid_, pPlayer player1_, pPlayer player2_, uint8_t numOfRounds) : _grid(grid_), _player1(player1_), _player2(player2_), _roundsNum(numOfRounds), _roundsPlayed(0), _scoreTable(new ScoreTable)
+Match::Match(pGrid grid_, pPlayer player1_, pPlayer player2_, const RoundInt numOfRounds) : _grid(grid_), _player1(player1_), _player2(player2_), _roundsNum(numOfRounds), _roundsPlayed(0), _scoreTable(new ScoreTable)
 {
-
+	setAutoDelete(false);
 }
 
 /***********************************************/
@@ -41,13 +42,13 @@ pPlayer Match::player2() const
 }
 
 /***********************************************/
-uint8_t Match::roundsNum() const
+RoundInt Match::roundsNum() const
 {
 	return _roundsNum;
 }
 
 /***********************************************/
-uint8_t Match::roundsPlayed() const
+RoundInt Match::roundsPlayed() const
 {
 	return _roundsPlayed;
 }
@@ -57,8 +58,8 @@ void Match::run()
 {
 	while(isOver() == false)
 	{
-		Game game1(grid(), player1(), player2(), false, scoreTable());
-		Game game2(grid(), player1(), player2(), true, scoreTable());
+		Game game1(grid()->getEmptyCopy(), player1(), player2(), false, scoreTable());
+		Game game2(grid()->getEmptyCopy(), player1(), player2(), true, scoreTable());
 
 		game1.run();
 		game2.run();
