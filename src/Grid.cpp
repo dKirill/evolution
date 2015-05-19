@@ -33,7 +33,7 @@ Grid::Grid(const std::string& init)
 			if(!(ss >> cellTypeInt))
 				THROW("Error while reading grid");
 
-			cell = pCell(new Cell(Cell::intToCellType(cellTypeInt)));
+			cell = pCell(new Cell(Cell::intToCellType(cellTypeInt), col, row));
 			columnVecRef.push_back(cell);
 		}
 	}
@@ -46,6 +46,12 @@ Grid::~Grid()
 }
 
 /***********************************************/
+bool Grid::adjacency(pCell c1, pCell c2)
+{
+	return distance(c1, c2) == 1;
+}
+
+/***********************************************/
 pCell Grid::at(const CellInt col, const CellInt row) const
 {
 	return _grid.at(col).at(row);
@@ -55,6 +61,12 @@ pCell Grid::at(const CellInt col, const CellInt row) const
 CellInt Grid::colNum() const
 {
 	return _grid.size();
+}
+
+/***********************************************/
+RangeInt Grid::distance(pCell c1, pCell c2)
+{
+	return std::abs(c1->column() - c2->column()) + std::abs(c1->row() - c2->row());
 }
 
 /***********************************************/
@@ -78,6 +90,8 @@ pGrid Grid::getEmptyCopy() const
 			colCopiedVecRef.at(row++) = cellRef->getEmptyCopy();
 		}
 	}
+
+	return copy;
 }
 
 /***********************************************/
@@ -87,7 +101,7 @@ CellInt Grid::rowNum() const
 }
 
 /***********************************************/
-bool Grid::setState(const GridState newstate, pPlayer permissionRecipient)
+void Grid::setState(const GridState newstate, pPlayer permissionRecipient)
 {
 	_permissionOwner = permissionRecipient;
 

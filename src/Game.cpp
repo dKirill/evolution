@@ -1,4 +1,6 @@
 /*--------------------------------------------------------------------------*/
+#include <boost/numeric/conversion/converter.hpp>
+/*--------------------------------------------------------------------------*/
 #include "Cell.h"
 #include "Game.h"
 #include "Grid.h"
@@ -36,11 +38,37 @@ void Game::move(pRoute route)
 		THROW("Unit is not occupier");
 
 	if(_unitsMovedThisTurn.find(route->unit()) != _unitsMovedThisTurn.end())
-		THROW("Unit can't move more than once per turn");
+		THROW("Unit can't move more than once per turn")
 	else
 		_unitsMovedThisTurn.insert(route->unit());
 
-	//TODO turn
+	if(route->unit()->moveRange() < route->route().size() - 1) // -starting point
+		THROW("Move range of unit exceeded");
+
+	for(size_t i = 1; i < route->route().size(); ++i)
+	{
+		pCell dest = route->route().at(i);
+		pCell src = route->route().at(i - 1);
+
+		if(!dest->occupiable())
+			THROW("Cell isn't occupiable");
+
+		if(dest->occupier())
+		{
+			if(dest->occupier()->owner() == route->unit()->owner())
+				THROW("Cell is occupied by friendly unit")
+			else
+				attack(src, dest);
+		}
+		else if(Grid::adjacency(src, dest))
+		{
+			 dest->occupy(src->occupier());
+			 src->free();
+		}
+		else
+			THROW("Come on, cells are not even adjacent");
+	}
+
 }
 
 /***********************************************/
@@ -81,6 +109,30 @@ void Game::run()
 	}
 
 	grid()->setState(GridState::Initial);
+}
+
+/***********************************************/
+void Game::attack(pCell src, pCell dest)
+{
+	pUnit attacker = src->occupier();
+	pUnit victim = src->occupier();
+	bool retaliation = attacker->attackRange() == 1;
+	AttackInt damage = calcDamage(attacker, victim);
+
+	if(Grid::distance(src, dest) > attacker->attackRange())
+		THROW("Attack range exceeded");
+
+
+
+}
+
+/***********************************************/
+AttackInt Game::calcDamage(pUnit attacker, pUnit victim)
+{
+	ModifierFloat healthRel = attacker->health() / attacker->baseHealth();
+	ModifierFloat healthMod = 2 * healthRel + 0.5; // y = 2x + 0.5;
+
+	return std::ceil(attacker->attack() * attacker->attackModifier(victim->type()) * healthMod);
 }
 
 /***********************************************/

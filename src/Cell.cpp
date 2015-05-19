@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------------*/
 
 /***********************************************/
-Cell::Cell(const CellType cellType_) : _cellType(cellType_)
+Cell::Cell(const CellType cellType_, const CellInt col, const CellInt row) : _cellType(cellType_), _column(col), _row(row)
 {
 
 }
@@ -18,6 +18,12 @@ Cell::~Cell()
 CellType Cell::cellType() const
 {
 	return _cellType;
+}
+
+/***********************************************/
+CellInt Cell::column() const
+{
+	return _column;
 }
 
 /***********************************************/
@@ -59,6 +65,12 @@ pUnit Cell::occupier() const
 }
 
 /***********************************************/
+CellInt Cell::row() const
+{
+	return _row;
+}
+
+/***********************************************/
 void Cell::free()
 {
 	_occupier.reset();
@@ -67,7 +79,7 @@ void Cell::free()
 /***********************************************/
 pCell Cell::getEmptyCopy() const
 {
-	return pCell(new Cell(cellType()));
+	return pCell(new Cell(cellType(), column(), row()));
 }
 
 /***********************************************/

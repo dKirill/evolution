@@ -29,11 +29,13 @@ public:
 	Grid(const std::string& init);
 	~Grid();
 
+	static bool adjacency(pCell c1, pCell c2);
 	pCell at(const CellInt col, const CellInt row) const;
 	CellInt colNum() const;
+	static RangeInt distance(pCell c1, pCell c2);
 	pGrid getEmptyCopy() const;
 	CellInt rowNum() const;
-	bool setState(const GridState newstate, pPlayer permissionRecipient = pPlayer());
+	void setState(const GridState newstate, pPlayer permissionRecipient = pPlayer());
 	GridState state() const;
 
 private:

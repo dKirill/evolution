@@ -21,6 +21,8 @@ public:
 	pScoreTable scoreTable() const;
 
 private:
+	void attack(pCell src, pCell dest);
+	AttackInt calcDamage(pUnit attacker, pUnit victim);
 	pPlayer nextPlayer() const;
 	bool isOver();
 

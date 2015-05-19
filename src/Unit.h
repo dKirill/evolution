@@ -16,22 +16,27 @@ enum class Units : uint8_t
 class Unit
 {
 public:
-	Unit(pPlayer owner, const Units type);
+	Unit(pPlayer owner, const Units type_);
 	~Unit();
 
 	AttackInt attack() const;
-	AttackSpreadFloat attackSpread() const;
+	ModifierFloat attackModifier(const Units victim) const;
+	RangeInt attackRange() const;
+	ModifierFloat attackSpread() const;
+	HealthInt baseHealth() const;
 	HealthInt health() const;
+	RangeInt moveRange() const;
 	pPlayer owner() const;
-	RangeInt range() const;
 	Units type() const;
 
 private:
 	AttackInt _attack;
-	AttackSpreadFloat _attackSpread;
+	RangeInt _attackRange;
+	ModifierFloat _attackSpread;
+	HealthInt _baseHealth;
 	HealthInt _health;
+	RangeInt _moveRange;
 	pPlayer _owner;
-	RangeInt _range;
 	Units _type;
 };
 

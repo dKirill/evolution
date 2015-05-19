@@ -42,12 +42,12 @@ using pUnit = std::shared_ptr<Unit>;
 
 using AttackInt = uint16_t;
 using CellInt = uint16_t;
-using HealthInt = uint16_t;
+using HealthInt = int32_t;
 using RangeInt = uint8_t;
 using RoundInt = uint8_t;
 using ScoreInt = uint8_t;
 
-using AttackSpreadFloat = float;
+using ModifierFloat = float;
 
 using Matches = std::set<pMatch>;
 using Players = std::set<pPlayer>;

@@ -3,9 +3,9 @@
 /*--------------------------------------------------------------------------*/
 
 /***********************************************/
-Unit::Unit(pPlayer owner, const Units type) : _owner(owner), _type(type)
+Unit::Unit(pPlayer owner, const Units type_) : _owner(owner), _type(type_)
 {
-	switch(type)
+	switch(type())
 	{
 		//TODO init constants
 	}
@@ -20,13 +20,37 @@ Unit::~Unit()
 /***********************************************/
 AttackInt Unit::attack() const
 {
-	return _attack; //TODO calc according to health %
+	return _attack;
 }
 
 /***********************************************/
-AttackSpreadFloat Unit::attackSpread() const
+ModifierFloat Unit::attackModifier(const Units victim) const
+{
+	switch(type())
+	{
+		switch(victim)
+		{
+			//TODO init constants
+		}
+	}
+}
+
+/***********************************************/
+RangeInt Unit::attackRange() const
+{
+	return _attackRange;
+}
+
+/***********************************************/
+ModifierFloat Unit::attackSpread() const
 {
 	return _attackSpread;
+}
+
+/***********************************************/
+HealthInt Unit::baseHealth() const
+{
+	return _baseHealth;
 }
 
 /***********************************************/
@@ -36,15 +60,15 @@ HealthInt Unit::health() const
 }
 
 /***********************************************/
-pPlayer Unit::owner() const
+RangeInt Unit::moveRange() const
 {
-	return _owner;
+	return _moveRange;
 }
 
 /***********************************************/
-RangeInt Unit::range() const
+pPlayer Unit::owner() const
 {
-	return _range;
+	return _owner;
 }
 
 /***********************************************/
