@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <exception>
 #include <memory>
+#include <random>
 #include <set>
 #include <sstream>
 #include <vector>
@@ -47,11 +48,15 @@ using RangeInt = uint8_t;
 using RoundInt = uint8_t;
 using ScoreInt = uint8_t;
 
+using AttackFloat = float;
 using ModifierFloat = float;
 
 using Matches = std::set<pMatch>;
 using Players = std::set<pPlayer>;
 using Scores = std::vector<pScore>;
+
+//rng
+using RandEngine = std::mt19937;
 
 //custom exception
 class Exception : public std::exception

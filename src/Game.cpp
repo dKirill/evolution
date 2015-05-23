@@ -1,5 +1,6 @@
 /*--------------------------------------------------------------------------*/
-#include <boost/numeric/conversion/converter.hpp>
+#include <ctime>
+#include <random>
 /*--------------------------------------------------------------------------*/
 #include "Cell.h"
 #include "Game.h"
@@ -13,7 +14,7 @@
 /***********************************************/
 Game::Game(pGrid grid_, pPlayer playerLeft_, pPlayer playerRight_, bool ftr, pScoreTable scoreTable) : _firstTurnRight(ftr), _grid(grid_), _playerLeft(playerLeft_), _playerRight(playerRight_), _scoreTable(scoreTable)
 {
-
+	_rengine.seed((uint_fast32_t)nextSeed());
 }
 
 /***********************************************/
@@ -29,7 +30,19 @@ pGrid Game::grid() const
 }
 
 /***********************************************/
-void Game::move(pRoute route)
+pPlayer Game::playerLeft() const
+{
+	return _playerLeft;
+}
+
+/***********************************************/
+pPlayer Game::playerRight() const
+{
+	return _playerRight;
+}
+
+/***********************************************/
+void Game::process(pRoute route)
 {
 	if(route->unit()->owner() != _currPlayer)
 		THROW("Player's trying to move opp's unit");
@@ -62,25 +75,11 @@ void Game::move(pRoute route)
 		}
 		else if(Grid::adjacency(src, dest))
 		{
-			 dest->occupy(src->occupier());
-			 src->free();
+			 move(src, dest);
 		}
 		else
 			THROW("Come on, cells are not even adjacent");
 	}
-
-}
-
-/***********************************************/
-pPlayer Game::playerLeft() const
-{
-	return _playerLeft;
-}
-
-/***********************************************/
-pPlayer Game::playerRight() const
-{
-	return _playerRight;
 }
 
 /***********************************************/
@@ -116,14 +115,27 @@ void Game::attack(pCell src, pCell dest)
 {
 	pUnit attacker = src->occupier();
 	pUnit victim = src->occupier();
-	bool retaliation = attacker->attackRange() == 1;
 	AttackInt damage = calcDamage(attacker, victim);
+	AttackInt retaliation = 0;
 
 	if(Grid::distance(src, dest) > attacker->attackRange())
 		THROW("Attack range exceeded");
 
+	if(attacker->attackRange() == 1) //victim strikes back
+	{
+		retaliation = calcDamage(victim, attacker);
+	}
 
+	victim->damage(damage);
+	attacker->damage(retaliation);
 
+	if(!victim->alive())
+		dest->free();
+
+	if(!attacker->alive())
+		src->free();
+	else if(!victim->alive()) //else they both stay at their cells
+		move(src, dest);
 }
 
 /***********************************************/
@@ -131,19 +143,9 @@ AttackInt Game::calcDamage(pUnit attacker, pUnit victim)
 {
 	ModifierFloat healthRel = attacker->health() / attacker->baseHealth();
 	ModifierFloat healthMod = 2 * healthRel + 0.5; // y = 2x + 0.5;
+	AttackFloat attack = attacker->nextAttack(_rengine) * attacker->attackModifier(victim->type());
 
-	return std::ceil(attacker->attack() * attacker->attackModifier(victim->type()) * healthMod);
-}
-
-/***********************************************/
-pPlayer Game::nextPlayer() const
-{
-	if(!_currPlayer)
-		_currPlayer = _firstTurnRight ? playerRight() : playerLeft();
-	else
-		_currPlayer = _currPlayer == playerLeft() ? playerRight() : playerLeft();
-
-	return _currPlayer;
+	return static_cast<AttackInt>(std::ceil(attack * healthMod));
 }
 
 /***********************************************/
@@ -170,12 +172,12 @@ bool Game::isOver()
 			}
 		}
 	}
-	
+
 	if(plUnitsAlive == 0 && prUnitsAlive == 0)
 	{
 		scoreTable()->addScore(playerLeft(), ScoreEnum::Tie);
 		scoreTable()->addScore(playerRight(), ScoreEnum::Tie);
-		
+
 		return true;
 	}
 	else if(plUnitsAlive == 0 && prUnitsAlive > 0)
@@ -202,4 +204,39 @@ bool Game::isOver()
 
 		return true;
 	}
+}
+
+/***********************************************/
+void Game::move(pCell src, pCell dest)
+{
+	dest->occupy(src->occupier());
+	src->free();
+}
+
+/***********************************************/
+pPlayer Game::nextPlayer() const
+{
+	if(!_currPlayer)
+		_currPlayer = _firstTurnRight ? playerRight() : playerLeft();
+	else
+		_currPlayer = _currPlayer == playerLeft() ? playerRight() : playerLeft();
+
+	return _currPlayer;
+}
+
+/***********************************************/
+std::uint32_t Game::nextSeed()
+{
+	static std::uint32_t lim = 10000; //TODO config?!
+	static std::vector<std::uint32_t> seeds(lim);
+	static std::int64_t curr = lim;
+	static std::seed_seq seq{std::time(nullptr)};
+
+	if(curr == lim)
+	{
+		seq.generate(std::begin(seeds), std::end(seeds));
+		curr = -1;
+	}
+
+	return seeds.at(++curr);
 }

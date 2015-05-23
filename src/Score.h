@@ -21,9 +21,9 @@ public:
 	Score(pPlayer player_);
 	~Score();
 
-	void lose();
-	void tie();
-	void win();
+	void lose(const ScoreInt amount = 1);
+	void tie(const ScoreInt amount = 1);
+	void win(const ScoreInt amount = 1);
 	pPlayer player() const;
 	ScoreInt loses() const;
 	ScoreInt ties() const;

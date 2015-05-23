@@ -14,23 +14,26 @@ public:
 	~Game();
 
 	pGrid grid() const;
-	void move(pRoute route);
 	pPlayer playerLeft() const;
 	pPlayer playerRight() const;
+	void process(pRoute route);
 	void run();
 	pScoreTable scoreTable() const;
 
 private:
 	void attack(pCell src, pCell dest);
 	AttackInt calcDamage(pUnit attacker, pUnit victim);
-	pPlayer nextPlayer() const;
 	bool isOver();
+	static void move(pCell src, pCell dest);
+	pPlayer nextPlayer() const;
+	static std::uint32_t nextSeed();
 
 	mutable pPlayer _currPlayer;
 	bool _firstTurnRight;
 	pGrid _grid;
 	pPlayer _playerLeft;
 	pPlayer _playerRight;
+	RandEngine _rengine;
 	pScoreTable _scoreTable;
 	std::set<pUnit> _unitsMovedThisTurn;
 };

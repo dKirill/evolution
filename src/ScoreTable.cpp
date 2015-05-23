@@ -1,6 +1,4 @@
 /*--------------------------------------------------------------------------*/
-#include <boost/range/irange.hpp>
-/*--------------------------------------------------------------------------*/
 #include "Score.h"
 #include "ScoreTable.h"
 /*--------------------------------------------------------------------------*/
@@ -70,15 +68,9 @@ void ScoreTable::merge(pScoreTable scoretable)
 		{
 			if(scoreref->player() == thisscoreref->player()) //fp
 			{
-				for(auto win : boost::integer_range<ScoreInt>(1, scoreref->wins()))
-					thisscoreref->win();
-
-				for(auto tie : boost::integer_range<ScoreInt>(1, scoreref->ties()))
-					thisscoreref->tie();
-
-				for(auto lose : boost::integer_range<ScoreInt>(1, scoreref->loses()))
-					thisscoreref->lose();
-
+				thisscoreref->win(scoreref->wins());
+				thisscoreref->tie(scoreref->ties());
+				thisscoreref->lose(scoreref->loses());
 				found = true;
 
 				break;

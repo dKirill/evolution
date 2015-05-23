@@ -28,21 +28,21 @@ Score::~Score()
 }
 
 /***********************************************/
-void Score::lose()
+void Score::lose(const ScoreInt amount)
 {
-	++_loses;
+	_loses += amount;
 }
 
 /***********************************************/
-void Score::tie()
+void Score::tie(const ScoreInt amount)
 {
-	++_ties;
+	_ties += amount;
 }
 
 /***********************************************/
-void Score::win()
+void Score::win(const ScoreInt amount)
 {
-	++_wins;
+	_wins += amount;
 }
 
 /***********************************************/
