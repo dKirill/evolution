@@ -14,9 +14,6 @@ enum class Side : uint8_t
 class Player
 {
 public:
-	Player();
-	virtual ~Player();
-
 	virtual void initGrid(pGame game, Side side) = 0;
 	virtual void turn(pGame game) = 0;
 };

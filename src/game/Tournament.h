@@ -18,7 +18,7 @@ private:
 	pGrid _grid;
 	Matches _matches;
 	Players _players;
-	RoundInt _roundsPerMatch;
+	RoundInt _roundsPerMatch = 0;
 	pScoreTable _scoreTable;
 };
 

@@ -7,6 +7,6 @@
 int main()
 {
 	qDebug() << QThread::idealThreadCount();
-//TODO do stuff
+//TODO stuff
 	return 0;
 }

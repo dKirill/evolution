@@ -26,8 +26,8 @@ private:
 	pGrid _grid;
 	pPlayer _player1;
 	pPlayer _player2;
-	uint8_t _roundsNum;
-	uint8_t _roundsPlayed;
+	uint8_t _roundsNum = 0;
+	uint8_t _roundsPlayed = 0;
 	pScoreTable _scoreTable;
 };
 

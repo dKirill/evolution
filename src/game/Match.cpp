@@ -1,8 +1,8 @@
 /*--------------------------------------------------------------------------*/
-#include "Game.h"
-#include "Grid.h"
-#include "Match.h"
-#include "ScoreTable.h"
+#include "game/Game.h"
+#include "game/Grid.h"
+#include "game/Match.h"
+#include "game/ScoreTable.h"
 /*--------------------------------------------------------------------------*/
 
 /***********************************************/

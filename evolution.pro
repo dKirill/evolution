@@ -1,28 +1,33 @@
 SOURCES += \
     src/main.cpp \
-    src/Grid.cpp \
-    src/Cell.cpp \
-    src/Game.cpp \
-    src/Player.cpp \
-    src/Unit.cpp \
-    src/Match.cpp \
-    src/ScoreTable.cpp \
-    src/Score.cpp \
-    src/Tournament.cpp \
-    src/Route.cpp
+    src/game/Grid.cpp \
+    src/game/Cell.cpp \
+    src/game/Game.cpp \
+    src/game/Unit.cpp \
+    src/game/Match.cpp \
+    src/game/ScoreTable.cpp \
+    src/game/Score.cpp \
+    src/game/Tournament.cpp \
+    src/game/Route.cpp \
+    src/evolution/AiIndividual.cpp \
+    src/evolution/Gene.cpp
 
 HEADERS += \
-    src/Grid.h \
-    src/Cell.h \
+    src/game/Grid.h \
+    src/game/Cell.h \
     src/Global.h \
-    src/Game.h \
-    src/Player.h \
-    src/Unit.h \
-    src/Match.h \
-    src/ScoreTable.h \
-    src/Score.h \
-    src/Tournament.h \
-    src/Route.h
+    src/game/Game.h \
+    src/game/Player.h \
+    src/game/Unit.h \
+    src/game/Match.h \
+    src/game/game/ScoreTable.h \
+    src/game/Score.h \
+    src/game/Tournament.h \
+    src/game/Route.h \
+    src/evolution/AiIndividual.h \
+    src/evolution/Gene.h
 
 QT += core
 CONFIG += c++11
+
+INCLUDEPATH += src/

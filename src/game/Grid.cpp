@@ -1,22 +1,23 @@
 /*--------------------------------------------------------------------------*/
 #include <sstream>
 /*--------------------------------------------------------------------------*/
-#include "Grid.h"
-#include "Cell.h"
+#include "game/Grid.h"
+#include "game/Cell.h"
 /*--------------------------------------------------------------------------*/
 
 /***********************************************/
 Grid::Grid(const std::string& init)
 {
+	UnitsInt unitsNum = 0;
 	CellInt colNum = 0;
 	CellInt rowNum = 0;
 	std::stringstream ss(init);
 
-	if(!(ss >> colNum >> rowNum))
-		THROW("Error while reading size of grid");
+	if(!(ss >> unitsNum >> colNum >> rowNum))
+		THROW("Error while reading grid constants");
 
-	if(colNum == 0 || rowNum == 0)
-		THROW("Invalid size of grid. cNum=" << colNum << ", rNum=" << rowNum);
+	if(unitsNum > colNum * rowNum / 2 || unitsNum == 0 || colNum == 0 || rowNum == 0)
+		THROW("Invalid grid constants. uNum=" << unitsNum << ", cNum=" << colNum << ", rNum=" << rowNum);
 
 	_grid.reserve(colNum);
 
@@ -158,6 +159,12 @@ void Grid::setState(const GridState newstate, pPlayer permissionRecipient)
 GridState Grid::state() const
 {
 	return _state;
+}
+
+/***********************************************/
+UnitsInt Grid::unitsPerPlayer() const
+{
+	return _unitsPerPlayer;
 }
 
 /***********************************************/

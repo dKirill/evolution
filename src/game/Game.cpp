@@ -2,13 +2,13 @@
 #include <ctime>
 #include <random>
 /*--------------------------------------------------------------------------*/
-#include "Cell.h"
-#include "Game.h"
-#include "Grid.h"
-#include "Player.h"
-#include "Route.h"
-#include "ScoreTable.h"
-#include "Unit.h"
+#include "game/Cell.h"
+#include "game/Game.h"
+#include "game/Grid.h"
+#include "game/Player.h"
+#include "game/Route.h"
+#include "game/ScoreTable.h"
+#include "game/Unit.h"
 /*--------------------------------------------------------------------------*/
 
 /***********************************************/

@@ -30,10 +30,10 @@ public:
 	ScoreInt wins() const;
 
 private:
-	ScoreInt _loses;
-	pPlayer _player;
-	ScoreInt _ties;
-	ScoreInt _wins;
+	ScoreInt _loses = 0;
+	pPlayer _player = 0;
+	ScoreInt _ties = 0;
+	ScoreInt _wins = 0;
 };
 
 bool operator<(pScore lscore, pScore rscore);

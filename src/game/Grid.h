@@ -22,9 +22,9 @@ class Grid : public boost::noncopyable
 public:
 	/**Init string template:
 
-	   C R a11 a12 a21 a22
+	   N C R a11 a12 a21 a22
 
-	   Where C - num of columns, R - num of rows, a## - type of surface (0 ~ flat, 1 ~ mountain, 2 ~ left starting area, 3 ~ right starting area)
+	   Where N - num of units per player, C - num of columns, R - num of rows, a## - type of surface (0 ~ flat, 1 ~ mountain, 2 ~ left starting area, 3 ~ right starting area)
 	*/
 	Grid(const std::string& init);
 	~Grid();
@@ -37,13 +37,15 @@ public:
 	CellInt rowNum() const;
 	void setState(const GridState newstate, pPlayer permissionRecipient = pPlayer());
 	GridState state() const;
+	UnitsInt unitsPerPlayer() const;
 
 private:
 	Grid();
 
 	std::vector<std::vector<pCell>> _grid;
 	pPlayer _permissionOwner;
-	GridState _state;
+	GridState _state = GridState::Initial;
+	UnitsInt _unitsPerPlayer = 0;
 };
 
 #endif // GRID_H

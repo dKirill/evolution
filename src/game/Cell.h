@@ -36,9 +36,9 @@ private:
 	void occupy(pUnit entering);
 
 	CellType _cellType;
-	CellInt _column;
+	CellInt _column = 0;
 	pUnit _occupier;
-	CellInt _row;
+	CellInt _row = 0;
 
 	friend class Game;
 	friend class Grid;

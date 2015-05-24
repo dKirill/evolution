@@ -1,33 +1,27 @@
 /*--------------------------------------------------------------------------*/
-#include "Route.h"
+#include "evolution/AiIndividual.h"
 /*--------------------------------------------------------------------------*/
 
 /***********************************************/
-Route::Route(pCell start, pUnit unit) : _unit(unit)
-{
-	addCell(start);
-}
-
-/***********************************************/
-Route::~Route()
+AiIndividual::AiIndividual()
 {
 
 }
 
 /***********************************************/
-void Route::addCell(pCell cell)
+AiIndividual::~AiIndividual()
 {
-	_route.push_back(cell);
+
 }
 
 /***********************************************/
-std::vector<pCell> Route::route() const
+void AiIndividual::initGrid(pGame game, Side side)
 {
-	return _route;
+	//TODO
 }
 
 /***********************************************/
-pUnit Route::unit() const
+void AiIndividual::turn(pGame game)
 {
-	return _unit;
+	//TODO
 }

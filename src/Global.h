@@ -14,6 +14,7 @@
 /*--------------------------------------------------------------------------*/
 
 //forward declarations
+class AiIndividual;
 class Cell;
 class Evolution;
 class Game;
@@ -28,6 +29,7 @@ class Tournament;
 class Unit;
 
 //ptr aliases
+using pAiIndividual = std::shared_ptr<AiIndividual>;
 using pCell = std::shared_ptr<Cell>;
 using pEvolution = std::shared_ptr<Evolution>;
 using pGame = std::shared_ptr<Game>;
@@ -44,9 +46,11 @@ using pUnit = std::shared_ptr<Unit>;
 using AttackInt = uint16_t;
 using CellInt = uint16_t;
 using HealthInt = int32_t;
+using GeneInt = uint8_t;
 using RangeInt = uint8_t;
 using RoundInt = uint8_t;
 using ScoreInt = uint8_t;
+using UnitsInt = uint8_t;
 
 using AttackFloat = float;
 using ModifierFloat = float;

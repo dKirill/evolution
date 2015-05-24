@@ -29,7 +29,7 @@ private:
 	static std::uint32_t nextSeed();
 
 	mutable pPlayer _currPlayer;
-	bool _firstTurnRight;
+	bool _firstTurnRight = false;
 	pGrid _grid;
 	pPlayer _playerLeft;
 	pPlayer _playerRight;

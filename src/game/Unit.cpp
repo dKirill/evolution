@@ -1,13 +1,13 @@
 /*--------------------------------------------------------------------------*/
-#include "Unit.h"
+#include "game/Unit.h"
 /*--------------------------------------------------------------------------*/
 
 /***********************************************/
-Unit::Unit(pPlayer owner, const Units type_) : _owner(owner), _type(type_)
+Unit::Unit(pPlayer owner, const UnitsType type_) : _owner(owner), _type(type_)
 {
 	switch(type())
 	{
-		case(Units::Archer): //TODO config?!
+		case(UnitsType::Archer): //TODO config?!
 		{
 			_attack = 5000;
 			_attackRange = 2;
@@ -17,7 +17,7 @@ Unit::Unit(pPlayer owner, const Units type_) : _owner(owner), _type(type_)
 
 			break;
 		}
-		case(Units::Horseman):
+		case(UnitsType::Horseman):
 		{
 			_attack = 7000;
 			_attackRange = 1;
@@ -27,7 +27,7 @@ Unit::Unit(pPlayer owner, const Units type_) : _owner(owner), _type(type_)
 
 			break;
 		}
-		case(Units::Pikeman):
+		case(UnitsType::Pikeman):
 		{
 			_attack = 5000;
 			_attackRange = 1;
@@ -37,7 +37,7 @@ Unit::Unit(pPlayer owner, const Units type_) : _owner(owner), _type(type_)
 
 			break;
 		}
-		case(Units::Swordsman):
+		case(UnitsType::Swordsman):
 		{
 			_attack = 6000;
 			_attackRange = 1;
@@ -66,63 +66,63 @@ bool Unit::alive() const
 }
 
 /***********************************************/
-ModifierFloat Unit::attackModifier(const Units victim) const
+ModifierFloat Unit::attackModifier(const UnitsType victim) const
 {
 	switch(type())
 	{
-		case(Units::Archer):
+		case(UnitsType::Archer):
 		{
 			switch(victim)
 			{
-				case(Units::Archer): //TODO config?!
+				case(UnitsType::Archer): //TODO config?!
 					return 1.2;
-				case(Units::Horseman):
+				case(UnitsType::Horseman):
 					return 1.1;
-				case(Units::Pikeman):
+				case(UnitsType::Pikeman):
 					return 1.1;
-				case(Units::Swordsman):
+				case(UnitsType::Swordsman):
 					return 1;
 			}
 		}
-		case(Units::Horseman):
+		case(UnitsType::Horseman):
 		{
 			switch(victim)
 			{
-				case(Units::Archer):
+				case(UnitsType::Archer):
 					return 2;
-				case(Units::Horseman):
+				case(UnitsType::Horseman):
 					return 1;
-				case(Units::Pikeman):
+				case(UnitsType::Pikeman):
 					return 0.7;
-				case(Units::Swordsman):
+				case(UnitsType::Swordsman):
 					return 1.5;
 			}
 		}
-		case(Units::Pikeman):
+		case(UnitsType::Pikeman):
 		{
 			switch(victim)
 			{
-				case(Units::Archer):
+				case(UnitsType::Archer):
 					return 1.2;
-				case(Units::Horseman):
+				case(UnitsType::Horseman):
 					return 1.5;
-				case(Units::Pikeman):
+				case(UnitsType::Pikeman):
 					return 1;
-				case(Units::Swordsman):
+				case(UnitsType::Swordsman):
 					return 0.8;
 			}
 		}
-		case(Units::Swordsman):
+		case(UnitsType::Swordsman):
 		{
 			switch(victim)
 			{
-				case(Units::Archer):
+				case(UnitsType::Archer):
 					return 1.2;
-				case(Units::Horseman):
+				case(UnitsType::Horseman):
 					return 1;
-				case(Units::Pikeman):
+				case(UnitsType::Pikeman):
 					return 1.2;
-				case(Units::Swordsman):
+				case(UnitsType::Swordsman):
 					return 1;
 			}
 		}
@@ -177,7 +177,7 @@ pPlayer Unit::owner() const
 }
 
 /***********************************************/
-Units Unit::type() const
+UnitsType Unit::type() const
 {
 	return _type;
 }
