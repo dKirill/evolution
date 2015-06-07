@@ -8,8 +8,13 @@
 class Gene
 {
 public:
-	Gene();
+	Gene(const GeneInt deviation_, const GeneInt max_, const GeneInt min_, const GeneInt value_);
 	~Gene();
+
+	GeneInt deviation() const;
+	GeneInt max() const;
+	GeneInt min() const;
+	GeneInt value() const;
 
 private:
 	GeneInt _deviation = 0;

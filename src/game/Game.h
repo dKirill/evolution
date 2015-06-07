@@ -16,6 +16,7 @@ public:
 	pGrid grid() const;
 	pPlayer playerLeft() const;
 	pPlayer playerRight() const;
+	void place(pCell cell, pUnit unit);
 	void process(pRoute route);
 	void run();
 	pScoreTable scoreTable() const;

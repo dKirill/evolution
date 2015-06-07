@@ -5,22 +5,22 @@
 #include "Global.h"
 /*--------------------------------------------------------------------------*/
 
-enum class UnitsType : uint8_t
+enum class UnitType : uint8_t
 {
-	Archer,
-	Horseman,
-	Pikeman,
-	Swordsman
+	Archer = 0,
+	Horseman = 1,
+	Pikeman = 2,
+	Swordsman = 3
 };
 
 class Unit
 {
 public:
-	Unit(pPlayer owner, const UnitsType type_);
+	Unit(pPlayer owner, const UnitType type_);
 	~Unit();
 
 	bool alive() const;
-	ModifierFloat attackModifier(const UnitsType victim) const;
+	ModifierFloat attackModifier(const UnitType victim) const;
 	RangeInt attackRange() const;
 	ModifierFloat attackSpread() const;
 	HealthInt baseHealth() const;
@@ -29,7 +29,7 @@ public:
 	RangeInt moveRange() const;
 	AttackFloat nextAttack(RandEngine& reng);
 	pPlayer owner() const;
-	UnitsType type() const;
+	UnitType type() const;
 
 private:
 	AttackInt attack() const;
@@ -42,7 +42,7 @@ private:
 	RangeInt _moveRange = 0;
 	std::normal_distribution<ModifierFloat> _normalDist;
 	pPlayer _owner;
-	UnitsType _type;
+	UnitType _type;
 };
 
 #endif // UNIT_H

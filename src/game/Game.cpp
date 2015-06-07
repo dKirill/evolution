@@ -42,6 +42,40 @@ pPlayer Game::playerRight() const
 }
 
 /***********************************************/
+void Game::place(pCell cell, pUnit unit)
+{
+	pPlayer currPlacer;
+
+	switch(grid()->state())
+	{
+		case(GridState::Initial):
+		case(GridState::Turn):
+			THROW("State err");
+		case(GridState::LeftPlayerPlacing):
+		{
+			currPlacer = playerLeft();
+			break;
+		}
+		case(GridState::RightPlayerPlacing):
+		{
+			currPlacer = playerRight();
+			break;
+		}
+	}
+
+	if(unit->owner() != currPlacer)
+		THROW("Placing err");
+
+	if(cell->occupiable() == false)
+		THROW("Placing err 2");
+
+	if(cell->occupier())
+		THROW("Placing err 3");
+
+	cell->occupy(unit);
+}
+
+/***********************************************/
 void Game::process(pRoute route)
 {
 	if(route->unit()->owner() != _currPlayer)
@@ -96,9 +130,9 @@ void Game::run()
 
 	grid()->setState(GridState::Initial);
 	grid()->setState(GridState::LeftPlayerPlacing);
-	playerLeft()->initGrid(shared_from_this(), Side::Left);
+	playerLeft()->initGrid(shared_from_this(), Side::Left, _rengine);
 	grid()->setState(GridState::RightPlayerPlacing);
-	playerLeft()->initGrid(shared_from_this(), Side::Right);
+	playerLeft()->initGrid(shared_from_this(), Side::Right, _rengine);
 
 	while(!isOver())
 	{
