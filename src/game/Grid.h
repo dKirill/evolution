@@ -31,8 +31,12 @@ public:
 
 	static bool adjacency(pCell c1, pCell c2);
 	pCell at(const CellInt col, const CellInt row) const;
+	bool attackReachable(pCell c1, pCell c2) const;
+	pRoute buildRoute(pCell c1, pCell c2) const;
 	CellInt colNum() const;
 	static RangeInt distance(pCell c1, pCell c2);
+	RangeInt distanceAchievable(pCell c1, pCell c2) const;
+	bool exists(const CellInt col, const CellInt row) const;
 	pGrid getEmptyCopy() const;
 	CellInt rowNum() const;
 	void setState(const GridState newstate, pPlayer permissionRecipient = pPlayer());

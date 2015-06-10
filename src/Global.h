@@ -5,9 +5,11 @@
 #include <cstdint>
 #include <exception>
 #include <memory>
+#include <mutex>
 #include <random>
 #include <set>
 #include <sstream>
+#include <ctime>
 #include <vector>
 /*--------------------------------------------------------------------------*/
 #include <QtCore/QDebug>
@@ -75,6 +77,23 @@ public:
 
 private:
 	std::string _what;
+};
+
+//global rand. eng.
+static RandEngine& globalReng()
+{
+	static RandEngine re;
+	static bool first = true;
+	static std::mutex mx;
+	std::lock_guard<std::mutex> guard(mx);
+
+	if(first)
+	{
+		re.seed((uint_fast32_t)std::time(NULL));
+		first = false;
+	}
+
+	return re;
 };
 
 //defines

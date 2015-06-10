@@ -3,13 +3,17 @@
 #include "game/Cell.h"
 #include "game/Game.h"
 #include "game/Grid.h"
+#include "game/Route.h"
 #include "game/Unit.h"
 /*--------------------------------------------------------------------------*/
 
 /***********************************************/
 AiIndividual::AiIndividual()
 {
-
+	init(_attackPriorities[UnitType::Archer]);
+	init(_attackPriorities[UnitType::Horseman]);
+	init(_attackPriorities[UnitType::Pikeman]);
+	init(_attackPriorities[UnitType::Swordsman]);
 }
 
 /***********************************************/
@@ -112,5 +116,58 @@ void AiIndividual::initGrid(pGame game, Side side, RandEngine& reng)
 /***********************************************/
 void AiIndividual::turn(pGame game)
 {
-	//TODO
+	std::set<pCell> allies;
+	std::set<pCell> enemies;
+
+	for(CellInt row = 0; row < game->grid()->rowNum(); ++row)
+	{
+		for(CellInt column = 0; column < game->grid()->colNum(); ++column)
+		{
+			pCell cell = game->grid()->at(column, row);
+
+			if(cell->occupier())
+			{
+				if(cell->occupier()->owner() == shared_from_this())
+					allies.insert(cell);
+				else
+					enemies.insert(cell);
+			}
+		}
+	}
+
+	for(auto const& aref : allies)
+	{
+		pUnit unit = aref->occupier();
+		pCell dest;
+		std::set<pCell, std::function<bool(pCell, pCell)>> sorted(
+															   [&](pCell c1, pCell c2) -> bool
+																{
+																	RangeInt distance1 = game->grid()->distanceAchievable(aref, c1);
+
+																	if(game->grid()->attackReachable(aref, c1)) //can attack
+																		return this->_attackPriorities[unit->type()][c1->occupier()->type()].value() < this->_attackPriorities[unit->type()][c2->occupier()->type()].value();
+																	else
+																	{
+																		RangeInt distance2 = game->grid()->distanceAchievable(aref, c2);
+
+																		return distance1 < distance2;
+																	}
+																});
+
+		sorted.insert(enemies.begin(), enemies.end());
+		dest = *(sorted.begin());
+		game->process(game->grid()->buildRoute(aref, dest));
+	}
+}
+
+/***********************************************/
+void AiIndividual::init(std::map<UnitType, Gene>& aps)
+{
+	std::uniform_int_distribution<GeneInt> uiDist;
+
+	uiDist.param(std::uniform_int_distribution<GeneInt>::param_type(toGeneInt(UnitType::Archer), toGeneInt(UnitType::Swordsman)));
+	aps.insert(std::make_pair(UnitType::Archer, Gene(1, toGeneInt(UnitType::Swordsman), toGeneInt(UnitType::Archer), uiDist(globalReng()))));
+	aps.insert(std::make_pair(UnitType::Horseman, Gene(1, toGeneInt(UnitType::Swordsman), toGeneInt(UnitType::Archer), uiDist(globalReng()))));
+	aps.insert(std::make_pair(UnitType::Pikeman, Gene(1, toGeneInt(UnitType::Swordsman), toGeneInt(UnitType::Archer), uiDist(globalReng()))));
+	aps.insert(std::make_pair(UnitType::Swordsman, Gene(1, toGeneInt(UnitType::Swordsman), toGeneInt(UnitType::Archer), uiDist(globalReng()))));
 }

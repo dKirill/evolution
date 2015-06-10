@@ -4,6 +4,7 @@
 /*--------------------------------------------------------------------------*/
 #include "evolution/Gene.h"
 #include "game/Player.h"
+#include "game/Unit.h"
 #include "Global.h"
 /*--------------------------------------------------------------------------*/
 
@@ -17,6 +18,9 @@ public:
 	virtual void turn(pGame game) override;
 
 private:
+	void init(std::map<UnitType, Gene>& aps);
+
+	std::map<UnitType, std::map<UnitType, Gene>> _attackPriorities;
 	std::vector<std::tuple<CellInt, CellInt, Gene>> _startingPositions; //1 dimension's enough
 };
 

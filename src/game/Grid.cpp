@@ -1,8 +1,11 @@
 /*--------------------------------------------------------------------------*/
+#include <functional>
 #include <sstream>
 /*--------------------------------------------------------------------------*/
-#include "game/Grid.h"
 #include "game/Cell.h"
+#include "game/Grid.h"
+#include "game/Route.h"
+#include "game/Unit.h"
 /*--------------------------------------------------------------------------*/
 
 /***********************************************/
@@ -59,6 +62,50 @@ pCell Grid::at(const CellInt col, const CellInt row) const
 }
 
 /***********************************************/
+bool Grid::attackReachable(pCell c1, pCell c2) const
+{
+	return distanceAchievable(c1, c2) <= c1->occupier()->moveRange() - 1 + c1->occupier()->attackRange();
+}
+
+/***********************************************/
+pRoute Grid::buildRoute(pCell c1, pCell c2) const
+{
+	pRoute route;
+	uint8_t dist = 0;
+	pCell curr = c1;
+	std::set<pCell> visited;
+	pUnit attacker = c1->occupier();
+
+	visited.insert(curr);
+
+	while(curr != c2)
+	{
+		std::set<pCell, std::function<bool(pCell, pCell)>> availableMoves([c2](pCell lc1, pCell lc2) -> bool { return distance(lc1, c2) < distance(lc2, c2); }); // first element is closest to dest.
+
+		//bidlokod:
+		if(exists(curr->column() + 1, curr->row()) && at(curr->column() + 1, curr->row())->occupiable() && visited.find(at(curr->column() + 1, curr->row())) == visited.end())
+			availableMoves.insert(at(curr->column() + 1, curr->row()));
+
+		if(exists(curr->column(), curr->row() + 1) && at(curr->column(), curr->row() + 1)->occupiable() && visited.find(at(curr->column() + 1, curr->row())) == visited.end())
+			availableMoves.insert(at(curr->column(), curr->row() + 1));
+
+		if(exists(curr->column() - 1, curr->row()) && at(curr->column() - 1, curr->row())->occupiable() && visited.find(at(curr->column() + 1, curr->row())) == visited.end())
+			availableMoves.insert(at(curr->column() - 1, curr->row()));
+
+		if(exists(curr->column(), curr->row() - 1) && at(curr->column(), curr->row() - 1)->occupiable() && visited.find(at(curr->column() + 1, curr->row())) == visited.end())
+			availableMoves.insert(at(curr->column(), curr->row() - 1));
+
+		if(availableMoves.empty())
+			THROW("Fuck your grid");
+
+		curr = *(availableMoves.begin());
+		++dist;
+	}
+
+	return dist;
+}
+
+/***********************************************/
 CellInt Grid::colNum() const
 {
 	return _grid.size();
@@ -68,6 +115,42 @@ CellInt Grid::colNum() const
 RangeInt Grid::distance(pCell c1, pCell c2)
 {
 	return std::abs(c1->column() - c2->column()) + std::abs(c1->row() - c2->row());
+}
+
+/***********************************************/
+RangeInt Grid::distanceAchievable(pCell c1, pCell c2) const
+{
+	uint8_t dist = 0;
+	pCell curr = c1;
+	std::set<pCell> visited;
+
+	visited.insert(curr);
+
+	while(curr != c2)
+	{
+		std::set<pCell, std::function<bool(pCell, pCell)>> availableMoves([c2](pCell lc1, pCell lc2) -> bool { return distance(lc1, c2) < distance(lc2, c2); }); // first element is closest to dest.
+
+		//bidlokod:
+		if(exists(curr->column() + 1, curr->row()) && at(curr->column() + 1, curr->row())->occupiable() && visited.find(at(curr->column() + 1, curr->row())) == visited.end())
+			availableMoves.insert(at(curr->column() + 1, curr->row()));
+
+		if(exists(curr->column(), curr->row() + 1) && at(curr->column(), curr->row() + 1)->occupiable() && visited.find(at(curr->column() + 1, curr->row())) == visited.end())
+			availableMoves.insert(at(curr->column(), curr->row() + 1));
+
+		if(exists(curr->column() - 1, curr->row()) && at(curr->column() - 1, curr->row())->occupiable() && visited.find(at(curr->column() + 1, curr->row())) == visited.end())
+			availableMoves.insert(at(curr->column() - 1, curr->row()));
+
+		if(exists(curr->column(), curr->row() - 1) && at(curr->column(), curr->row() - 1)->occupiable() && visited.find(at(curr->column() + 1, curr->row())) == visited.end())
+			availableMoves.insert(at(curr->column(), curr->row() - 1));
+
+		if(availableMoves.empty())
+			THROW("Fuck your grid");
+
+		curr = *(availableMoves.begin());
+		++dist;
+	}
+
+	return dist;
 }
 
 /***********************************************/
@@ -93,6 +176,15 @@ pGrid Grid::getEmptyCopy() const
 	}
 
 	return copy;
+}
+
+/***********************************************/
+bool Grid::exists(const CellInt col, const CellInt row) const
+{
+	if(col >= 0 && col < colNum() && row >= 0 && row < rowNum())
+		return true;
+	else
+		false;
 }
 
 /***********************************************/

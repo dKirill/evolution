@@ -28,6 +28,6 @@ HEADERS += \
     src/evolution/Gene.h
 
 QT += core
-CONFIG += c++14
+CONFIG += c++11
 
 INCLUDEPATH += src/
