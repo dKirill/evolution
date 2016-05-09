@@ -16,12 +16,12 @@
 /*--------------------------------------------------------------------------*/
 
 //forward declarations
-class AiIndividual;
 class Cell;
 class Evolution;
 class Game;
 class Generation;
 class Grid;
+class Individual;
 class Match;
 class Player;
 class Route;
@@ -31,12 +31,12 @@ class Tournament;
 class Unit;
 
 //ptr aliases
-using pAiIndividual = std::shared_ptr<AiIndividual>;
 using pCell = std::shared_ptr<Cell>;
 using pEvolution = std::shared_ptr<Evolution>;
 using pGame = std::shared_ptr<Game>;
 using pGeneration = std::shared_ptr<Generation>;
 using pGrid = std::shared_ptr<Grid>;
+using pIndividual = std::shared_ptr<Individual>;
 using pMatch = std::shared_ptr<Match>;
 using pPlayer = std::shared_ptr<Player>;
 using pRoute = std::shared_ptr<Route>;
@@ -77,23 +77,6 @@ public:
 
 private:
 	std::string _what;
-};
-
-//global rand. eng.
-static RandEngine& globalReng()
-{
-	static RandEngine re;
-	static bool first = true;
-	static std::mutex mx;
-	std::lock_guard<std::mutex> guard(mx);
-
-	if(first)
-	{
-		re.seed((uint_fast32_t)std::time(NULL));
-		first = false;
-	}
-
-	return re;
 };
 
 //defines

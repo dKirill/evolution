@@ -5,9 +5,9 @@
 #include "Global.h"
 /*--------------------------------------------------------------------------*/
 
-enum ScoreEnum
+enum class ScoreEnum : uint8_t
 {
-	Lose,
+	Lose = 0,
 	Tie,
 	Win
 };

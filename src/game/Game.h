@@ -18,6 +18,7 @@ public:
 	pPlayer playerRight() const;
 	void place(pCell cell, pUnit unit);
 	void process(pRoute route);
+	RandEngine& randEngine();
 	void run();
 	pScoreTable scoreTable() const;
 

@@ -14,7 +14,7 @@
 /***********************************************/
 Game::Game(pGrid grid_, pPlayer playerLeft_, pPlayer playerRight_, bool ftr, pScoreTable scoreTable) : _firstTurnRight(ftr), _grid(grid_), _playerLeft(playerLeft_), _playerRight(playerRight_), _scoreTable(scoreTable)
 {
-	_rengine.seed((uint_fast32_t)nextSeed());
+	_rengine.seed(nextSeed());
 }
 
 /***********************************************/
@@ -81,6 +81,9 @@ void Game::process(pRoute route)
 	if(route->unit()->owner() != _currPlayer)
 		THROW("Player's trying to move opp's unit");
 
+	if(route->route().size() < 2)
+		THROW("wrong route length=" << route->route().size());
+
 	if(route->unit() != route->route().at(0)->occupier())
 		THROW("Unit is not occupier");
 
@@ -108,18 +111,16 @@ void Game::process(pRoute route)
 				attack(src, dest);
 		}
 		else if(Grid::adjacency(src, dest))
-		{
 			 move(src, dest);
-		}
 		else
 			THROW("Come on, cells are not even adjacent");
 	}
 }
 
 /***********************************************/
-pScoreTable Game::scoreTable() const
+RandEngine& Game::randEngine()
 {
-	return _scoreTable;
+	return _rengine;
 }
 
 /***********************************************/
@@ -130,9 +131,9 @@ void Game::run()
 
 	grid()->setState(GridState::Initial);
 	grid()->setState(GridState::LeftPlayerPlacing);
-	playerLeft()->initGrid(shared_from_this(), Side::Left, _rengine);
+	playerLeft()->initGrid(shared_from_this(), Side::Left);
 	grid()->setState(GridState::RightPlayerPlacing);
-	playerLeft()->initGrid(shared_from_this(), Side::Right, _rengine);
+	playerRight()->initGrid(shared_from_this(), Side::Right);
 
 	while(!isOver())
 	{
@@ -142,6 +143,12 @@ void Game::run()
 	}
 
 	grid()->setState(GridState::Initial);
+}
+
+/***********************************************/
+pScoreTable Game::scoreTable() const
+{
+	return _scoreTable;
 }
 
 /***********************************************/
@@ -177,7 +184,7 @@ AttackInt Game::calcDamage(pUnit attacker, pUnit victim)
 {
 	ModifierFloat healthRel = attacker->health() / attacker->baseHealth();
 	ModifierFloat healthMod = 2 * healthRel + 0.5; // y = 2x + 0.5;
-	AttackFloat attack = attacker->nextAttack(_rengine) * attacker->attackModifier(victim->type());
+	AttackFloat attack = attacker->nextAttack(randEngine()) * attacker->attackModifier(victim->type());
 
 	return static_cast<AttackInt>(std::ceil(attack * healthMod));
 }

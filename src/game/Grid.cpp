@@ -70,11 +70,10 @@ bool Grid::attackReachable(pCell c1, pCell c2) const
 /***********************************************/
 pRoute Grid::buildRoute(pCell c1, pCell c2) const
 {
-	pRoute route;
-	uint8_t dist = 0;
 	pCell curr = c1;
 	std::set<pCell> visited;
 	pUnit attacker = c1->occupier();
+	pRoute route(new Route(curr, attacker));
 
 	visited.insert(curr);
 
@@ -86,23 +85,23 @@ pRoute Grid::buildRoute(pCell c1, pCell c2) const
 		if(exists(curr->column() + 1, curr->row()) && at(curr->column() + 1, curr->row())->occupiable() && visited.find(at(curr->column() + 1, curr->row())) == visited.end())
 			availableMoves.insert(at(curr->column() + 1, curr->row()));
 
-		if(exists(curr->column(), curr->row() + 1) && at(curr->column(), curr->row() + 1)->occupiable() && visited.find(at(curr->column() + 1, curr->row())) == visited.end())
+		if(exists(curr->column(), curr->row() + 1) && at(curr->column(), curr->row() + 1)->occupiable() && visited.find(at(curr->column(), curr->row() + 1)) == visited.end())
 			availableMoves.insert(at(curr->column(), curr->row() + 1));
 
-		if(exists(curr->column() - 1, curr->row()) && at(curr->column() - 1, curr->row())->occupiable() && visited.find(at(curr->column() + 1, curr->row())) == visited.end())
+		if(exists(curr->column() - 1, curr->row()) && at(curr->column() - 1, curr->row())->occupiable() && visited.find(at(curr->column() - 1, curr->row())) == visited.end())
 			availableMoves.insert(at(curr->column() - 1, curr->row()));
 
-		if(exists(curr->column(), curr->row() - 1) && at(curr->column(), curr->row() - 1)->occupiable() && visited.find(at(curr->column() + 1, curr->row())) == visited.end())
+		if(exists(curr->column(), curr->row() - 1) && at(curr->column(), curr->row() - 1)->occupiable() && visited.find(at(curr->column(), curr->row() - 1)) == visited.end())
 			availableMoves.insert(at(curr->column(), curr->row() - 1));
 
 		if(availableMoves.empty())
-			THROW("Fuck your grid");
+			THROW("Your grid is inherently flawed. No available moves");
 
 		curr = *(availableMoves.begin());
-		++dist;
+		route->addCell(curr);
 	}
 
-	return dist;
+	return route;
 }
 
 /***********************************************/
@@ -134,17 +133,17 @@ RangeInt Grid::distanceAchievable(pCell c1, pCell c2) const
 		if(exists(curr->column() + 1, curr->row()) && at(curr->column() + 1, curr->row())->occupiable() && visited.find(at(curr->column() + 1, curr->row())) == visited.end())
 			availableMoves.insert(at(curr->column() + 1, curr->row()));
 
-		if(exists(curr->column(), curr->row() + 1) && at(curr->column(), curr->row() + 1)->occupiable() && visited.find(at(curr->column() + 1, curr->row())) == visited.end())
+		if(exists(curr->column(), curr->row() + 1) && at(curr->column(), curr->row() + 1)->occupiable() && visited.find(at(curr->column(), curr->row() + 1)) == visited.end())
 			availableMoves.insert(at(curr->column(), curr->row() + 1));
 
-		if(exists(curr->column() - 1, curr->row()) && at(curr->column() - 1, curr->row())->occupiable() && visited.find(at(curr->column() + 1, curr->row())) == visited.end())
+		if(exists(curr->column() - 1, curr->row()) && at(curr->column() - 1, curr->row())->occupiable() && visited.find(at(curr->column() - 1, curr->row())) == visited.end())
 			availableMoves.insert(at(curr->column() - 1, curr->row()));
 
-		if(exists(curr->column(), curr->row() - 1) && at(curr->column(), curr->row() - 1)->occupiable() && visited.find(at(curr->column() + 1, curr->row())) == visited.end())
+		if(exists(curr->column(), curr->row() - 1) && at(curr->column(), curr->row() - 1)->occupiable() && visited.find(at(curr->column(), curr->row() - 1)) == visited.end())
 			availableMoves.insert(at(curr->column(), curr->row() - 1));
 
 		if(availableMoves.empty())
-			THROW("Fuck your grid");
+			THROW("Your grid is inherently flawed. No available moves");
 
 		curr = *(availableMoves.begin());
 		++dist;

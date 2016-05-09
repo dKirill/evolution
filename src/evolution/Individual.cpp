@@ -1,5 +1,5 @@
 /*--------------------------------------------------------------------------*/
-#include "evolution/AiIndividual.h"
+#include "evolution/Individual.h"
 #include "game/Cell.h"
 #include "game/Game.h"
 #include "game/Grid.h"
@@ -8,16 +8,16 @@
 /*--------------------------------------------------------------------------*/
 
 /***********************************************/
-AiIndividual::AiIndividual()
+Individual::Individual(RandEngine& reng)
 {
-	init(_attackPriorities[UnitType::Archer]);
-	init(_attackPriorities[UnitType::Horseman]);
-	init(_attackPriorities[UnitType::Pikeman]);
-	init(_attackPriorities[UnitType::Swordsman]);
+	init(_attackPriorities[UnitType::Archer], reng);
+	init(_attackPriorities[UnitType::Horseman], reng);
+	init(_attackPriorities[UnitType::Pikeman], reng);
+	init(_attackPriorities[UnitType::Swordsman], reng);
 }
 
 /***********************************************/
-AiIndividual::~AiIndividual()
+Individual::~Individual()
 {
 
 }
@@ -44,7 +44,7 @@ UnitType toUnitType(const GeneInt gint)
 }
 
 /***********************************************/
-void AiIndividual::initGrid(pGame game, Side side, RandEngine& reng)
+void Individual::initGrid(pGame game, Side side)
 {
 	std::vector<std::tuple<CellInt, CellInt, pCell>> startingAreaPrototype; //0 - column, 1 - row
 	CellType typeToFind = side == Side::Left ? CellType::LeftStartingArea : CellType::RightStartingArea;
@@ -91,7 +91,7 @@ void AiIndividual::initGrid(pGame game, Side side, RandEngine& reng)
 		uiDist.param(std::uniform_int_distribution<GeneInt>::param_type(toGeneInt(UnitType::Archer), toGeneInt(UnitType::Swordsman)));
 
 		for(auto const& gridref : startingAreaPrototype)
-			_startingPositions.push_back(std::make_tuple(std::get<0>(gridref), std::get<1>(gridref), Gene(1, toGeneInt(UnitType::Archer), toGeneInt(UnitType::Swordsman), uiDist(reng))));
+			_startingPositions.push_back(std::make_tuple(std::get<0>(gridref), std::get<1>(gridref), Gene(1, toGeneInt(UnitType::Archer), toGeneInt(UnitType::Swordsman), uiDist(game->randEngine()))));
 	}
 	else
 	{
@@ -114,11 +114,12 @@ void AiIndividual::initGrid(pGame game, Side side, RandEngine& reng)
 }
 
 /***********************************************/
-void AiIndividual::turn(pGame game)
+void Individual::turn(pGame game)
 {
 	std::set<pCell> allies;
 	std::set<pCell> enemies;
 
+	//find allies & enemies
 	for(CellInt row = 0; row < game->grid()->rowNum(); ++row)
 	{
 		for(CellInt column = 0; column < game->grid()->colNum(); ++column)
@@ -135,23 +136,39 @@ void AiIndividual::turn(pGame game)
 		}
 	}
 
+	//move every ally
 	for(auto const& aref : allies)
 	{
 		pUnit unit = aref->occupier();
 		pCell dest;
 		std::set<pCell, std::function<bool(pCell, pCell)>> sorted(
-															   [&](pCell c1, pCell c2) -> bool
+																[&](pCell c1, pCell c2) -> bool
 																{
 																	RangeInt distance1 = game->grid()->distanceAchievable(aref, c1);
+																	RangeInt distance2 = game->grid()->distanceAchievable(aref, c2);
+																	bool c1reachable = game->grid()->attackReachable(aref, c1);
+																	bool c2reachable = game->grid()->attackReachable(aref, c2);
+																	bool equalPriorities = this->_attackPriorities.at(unit->type()).at(c1->occupier()->type()).value() == this->_attackPriorities.at(unit->type()).at(c2->occupier()->type()).value();
 
-																	if(game->grid()->attackReachable(aref, c1)) //can attack
-																		return this->_attackPriorities[unit->type()][c1->occupier()->type()].value() < this->_attackPriorities[unit->type()][c2->occupier()->type()].value();
-																	else
+																	//if aref can attack c1 or c2
+																	if(c1reachable || c2reachable)
 																	{
-																		RangeInt distance2 = game->grid()->distanceAchievable(aref, c2);
-
-																		return distance1 < distance2;
+																		//if both within range of attack
+																		if(c1reachable && c2reachable)
+																		{
+																			//if equal priorities, compare distance; else compare priorities
+																			if(equalPriorities)
+																				return distance1 < distance2;
+																			else
+																				return this->_attackPriorities.at(unit->type()).at(c1->occupier()->type()).value() < this->_attackPriorities.at(unit->type()).at(c2->occupier()->type()).value();
+																		}
+																		//else pick reachable
+																		else
+																			return c1reachable < c2reachable;
 																	}
+																	//if both r too far, compare distance and pick closest
+																	else
+																		return distance1 < distance2;
 																});
 
 		sorted.insert(enemies.begin(), enemies.end());
@@ -161,13 +178,13 @@ void AiIndividual::turn(pGame game)
 }
 
 /***********************************************/
-void AiIndividual::init(std::map<UnitType, Gene>& aps)
+void Individual::init(std::map<UnitType, Gene>& aps, RandEngine& reng)
 {
 	std::uniform_int_distribution<GeneInt> uiDist;
 
 	uiDist.param(std::uniform_int_distribution<GeneInt>::param_type(toGeneInt(UnitType::Archer), toGeneInt(UnitType::Swordsman)));
-	aps.insert(std::make_pair(UnitType::Archer, Gene(1, toGeneInt(UnitType::Swordsman), toGeneInt(UnitType::Archer), uiDist(globalReng()))));
-	aps.insert(std::make_pair(UnitType::Horseman, Gene(1, toGeneInt(UnitType::Swordsman), toGeneInt(UnitType::Archer), uiDist(globalReng()))));
-	aps.insert(std::make_pair(UnitType::Pikeman, Gene(1, toGeneInt(UnitType::Swordsman), toGeneInt(UnitType::Archer), uiDist(globalReng()))));
-	aps.insert(std::make_pair(UnitType::Swordsman, Gene(1, toGeneInt(UnitType::Swordsman), toGeneInt(UnitType::Archer), uiDist(globalReng()))));
+	aps.insert(std::make_pair(UnitType::Archer, Gene(1, toGeneInt(UnitType::Swordsman), toGeneInt(UnitType::Archer), uiDist(reng))));
+	aps.insert(std::make_pair(UnitType::Horseman, Gene(1, toGeneInt(UnitType::Swordsman), toGeneInt(UnitType::Archer), uiDist(reng))));
+	aps.insert(std::make_pair(UnitType::Pikeman, Gene(1, toGeneInt(UnitType::Swordsman), toGeneInt(UnitType::Archer), uiDist(reng))));
+	aps.insert(std::make_pair(UnitType::Swordsman, Gene(1, toGeneInt(UnitType::Swordsman), toGeneInt(UnitType::Archer), uiDist(reng))));
 }

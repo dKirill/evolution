@@ -9,8 +9,8 @@ SOURCES += \
     src/game/Score.cpp \
     src/game/Tournament.cpp \
     src/game/Route.cpp \
-    src/evolution/AiIndividual.cpp \
-    src/evolution/Gene.cpp
+    src/evolution/Gene.cpp \
+    src/evolution/Individual.cpp
 
 HEADERS += \
     src/game/Grid.h \
@@ -20,12 +20,12 @@ HEADERS += \
     src/game/Player.h \
     src/game/Unit.h \
     src/game/Match.h \
-    src/game/game/ScoreTable.h \
+    src/game/ScoreTable.h \
     src/game/Score.h \
     src/game/Tournament.h \
     src/game/Route.h \
-    src/evolution/AiIndividual.h \
-    src/evolution/Gene.h
+    src/evolution/Gene.h \
+    src/evolution/Individual.h
 
 QT += core
 CONFIG += c++11
