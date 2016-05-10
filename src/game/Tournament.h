@@ -8,9 +8,10 @@
 class Tournament
 {
 public:
-	Tournament(pGrid grid, const Players& players, const RoundInt roundsPerMatch);
+	Tournament(pGrid grid_, const Players& players, const RoundInt roundsPerMatch);
 	~Tournament();
 
+	pGrid grid() const;
 	void run();
 	pScoreTable scoreTable() const;
 

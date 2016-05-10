@@ -7,14 +7,14 @@
 /*--------------------------------------------------------------------------*/
 
 /***********************************************/
-Tournament::Tournament(pGrid grid, const Players& players, const RoundInt roundsPerMatch) : _grid(grid), _players(players), _roundsPerMatch(roundsPerMatch), _scoreTable(new ScoreTable)
+Tournament::Tournament(pGrid grid_, const Players& players, const RoundInt roundsPerMatch) : _grid(grid_), _players(players), _roundsPerMatch(roundsPerMatch), _scoreTable(new ScoreTable)
 {
 	for(auto const& player1ref : _players)
 	{
 		for(auto const& player2ref : _players)
 		{
 			if(player1ref != player2ref)
-				_matches.insert(pMatch(new Match(_grid, player1ref, player2ref, _roundsPerMatch)));
+				_matches.insert(pMatch(new Match(grid(), player1ref, player2ref, _roundsPerMatch)));
 		}
 	}
 }
@@ -26,15 +26,25 @@ Tournament::~Tournament()
 }
 
 /***********************************************/
+pGrid Tournament::grid() const
+{
+	return _grid;
+}
+
+/***********************************************/
 void Tournament::run()
 {
+	qDebug() << "Tournament starts";
+	//start every match in separate thread
 	for(auto const& matchref : _matches)
 	{
 		QThreadPool::globalInstance()->start(matchref.get());
 	}
 
+	//wait for every thread to finish
 	QThreadPool::globalInstance()->waitForDone();
 
+	//check if every match is over. wait if it's not
 	for(auto const& matchref : _matches)
 	{
 		if(!matchref->isOver())
@@ -44,9 +54,11 @@ void Tournament::run()
 			continue;
 		}
 
+		//merge finished match scoretable with general one
 		scoreTable()->merge(matchref->scoreTable());
 	}
 
+	qDebug() << "Tournament ends";
 }
 
 /***********************************************/

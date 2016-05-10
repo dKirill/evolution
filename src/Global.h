@@ -42,13 +42,13 @@ using pPlayer = std::shared_ptr<Player>;
 using pRoute = std::shared_ptr<Route>;
 using pScore = std::shared_ptr<Score>;
 using pScoreTable = std::shared_ptr<ScoreTable>;
-using pTournament = std::shared_ptr<Tournament>;
 using pUnit = std::shared_ptr<Unit>;
 
 using AttackInt = uint16_t;
 using CellInt = uint16_t;
 using HealthInt = int32_t;
 using GeneInt = uint8_t;
+using GenerationInt = uint32_t;
 using RangeInt = uint8_t;
 using RoundInt = uint8_t;
 using ScoreInt = uint8_t;
@@ -57,9 +57,10 @@ using UnitsInt = uint8_t;
 using AttackFloat = float;
 using ModifierFloat = float;
 
+using Individuals = std::set<pIndividual>;
 using Matches = std::set<pMatch>;
 using Players = std::set<pPlayer>;
-using Scores = std::vector<pScore>;
+using Scores = std::set<pScore>;
 
 //rng
 using RandEngine = std::mt19937;

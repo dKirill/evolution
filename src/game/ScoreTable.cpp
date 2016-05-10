@@ -18,16 +18,10 @@ ScoreTable::~ScoreTable()
 /***********************************************/
 void ScoreTable::addPlayer(pPlayer player)
 {
-	for(auto const& scoreref : _scores)
-	{
-		if(scoreref->player() == player)
-		{
-			THROW("Player already presented");
-		}
-	}
+	if(std::find_if(_scores.begin(), _scores.end(), FindByPlayer(player)) != _scores.end())
+		THROW("Player already presented");
 
-	_scores.push_back(pScore(new Score(player)));
-	update();
+	_scores.insert(pScore(new Score(player)));
 }
 
 /***********************************************/
@@ -42,14 +36,17 @@ void ScoreTable::addScore(pPlayer player, ScoreEnum score)
 			case(ScoreEnum::Lose):
 			{
 				(*foundIter)->lose();
+				break;
 			}
 			case(ScoreEnum::Tie):
 			{
 				(*foundIter)->tie();
+				break;
 			}
 			case(ScoreEnum::Win):
 			{
 				(*foundIter)->win();
+				break;
 			}
 		}
 	}
@@ -62,30 +59,21 @@ void ScoreTable::merge(pScoreTable scoretable)
 {
 	for(auto const& scoreref : scoretable->_scores)
 	{
-		bool found = false;
+		auto foundIter = std::find_if(_scores.begin(), _scores.end(), FindByPlayer(scoreref->player()));
 
-		for(auto const& thisscoreref : _scores)
+		if(foundIter != _scores.end())
 		{
-			if(scoreref->player() == thisscoreref->player()) //fp
-			{
-				thisscoreref->win(scoreref->wins());
-				thisscoreref->tie(scoreref->ties());
-				thisscoreref->lose(scoreref->loses());
-				found = true;
-
-				break;
-			}
+			(*foundIter)->win(scoreref->wins());
+			(*foundIter)->tie(scoreref->ties());
+			(*foundIter)->lose(scoreref->loses());
 		}
-
-		if(found == false)
-			_scores.push_back(scoreref);
+		else
+			_scores.insert(scoreref);
 	}
-
-	update();
 }
 
 /***********************************************/
-void ScoreTable::update() //resort
+Scores ScoreTable::scores() const
 {
-	std::sort(_scores.begin(), _scores.end());
+	return _scores;
 }

@@ -31,7 +31,7 @@ public:
 
 private:
 	ScoreInt _loses = 0;
-	pPlayer _player = 0;
+	pPlayer _player;
 	ScoreInt _ties = 0;
 	ScoreInt _wins = 0;
 };

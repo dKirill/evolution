@@ -2,6 +2,7 @@
 #include "evolution/Individual.h"
 #include "game/Cell.h"
 #include "game/Game.h"
+#include "evolution/Gene.h"
 #include "game/Grid.h"
 #include "game/Route.h"
 #include "game/Unit.h"
@@ -20,6 +21,28 @@ Individual::Individual(RandEngine& reng)
 Individual::~Individual()
 {
 
+}
+
+/***********************************************/
+pIndividual Individual::evolve(RandEngine& reng)
+{
+	pIndividual indi(new Individual);
+
+	//copy data
+	indi->_attackPriorities = _attackPriorities;
+	indi->_startingPositions = _startingPositions;
+
+	//mutations
+	for(auto& apref : indi->_attackPriorities)
+	{
+		for(auto& ugref : apref.second)
+			ugref.second.mutate(reng);
+	}
+
+	for(auto& tupref : indi->_startingPositions)
+		std::get<2>(tupref).mutate(reng);
+
+	return indi;
 }
 
 /***********************************************/
@@ -175,6 +198,12 @@ void Individual::turn(pGame game)
 		dest = *(sorted.begin());
 		game->process(game->grid()->buildRoute(aref, dest));
 	}
+}
+
+/***********************************************/
+Individual::Individual()
+{
+
 }
 
 /***********************************************/

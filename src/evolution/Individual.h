@@ -9,7 +9,7 @@
 /*--------------------------------------------------------------------------*/
 
 //global rand. eng.
-//static RandEngine& globalReng()
+//static RandEngine& globalReng() TODO saved for future use. delete later
 //{
 //	static RandEngine re;
 //	static bool first = true;
@@ -31,10 +31,13 @@ public:
 	Individual(RandEngine& reng);
 	virtual ~Individual() final;
 
+	pIndividual evolve(RandEngine& reng);
 	virtual void initGrid(pGame game, Side side) final;
 	virtual void turn(pGame game) final;
 
 private:
+	Individual();
+
 	void init(std::map<UnitType, Gene>& aps, RandEngine& reng);
 
 	std::map<UnitType, std::map<UnitType, Gene>> _attackPriorities;

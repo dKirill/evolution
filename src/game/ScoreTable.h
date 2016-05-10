@@ -21,7 +21,7 @@ public:
 	void addPlayer(pPlayer player);
 	void addScore(pPlayer player, ScoreEnum score);
 	void merge(pScoreTable scoretable); //adds scoretable results to this
-	void update(); //resort
+	Scores scores() const;
 
 private:
 	Scores _scores;

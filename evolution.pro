@@ -10,7 +10,8 @@ SOURCES += \
     src/game/Tournament.cpp \
     src/game/Route.cpp \
     src/evolution/Gene.cpp \
-    src/evolution/Individual.cpp
+    src/evolution/Individual.cpp \
+    src/evolution/Generation.cpp
 
 HEADERS += \
     src/game/Grid.h \
@@ -25,7 +26,8 @@ HEADERS += \
     src/game/Tournament.h \
     src/game/Route.h \
     src/evolution/Gene.h \
-    src/evolution/Individual.h
+    src/evolution/Individual.h \
+    src/evolution/Generation.h
 
 QT += core
 CONFIG += c++11
