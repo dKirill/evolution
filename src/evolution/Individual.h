@@ -8,23 +8,6 @@
 #include "Global.h"
 /*--------------------------------------------------------------------------*/
 
-//global rand. eng.
-//static RandEngine& globalReng() TODO saved for future use. delete later
-//{
-//	static RandEngine re;
-//	static bool first = true;
-//	static std::mutex mx;
-//	std::lock_guard<std::mutex> guard(mx);
-
-//	if(first)
-//	{
-//		re.seed((uint_fast32_t)std::time(NULL));
-//		first = false;
-//	}
-
-//	return re;
-//}
-
 class Individual : public Player, public std::enable_shared_from_this<Individual>
 {
 public:

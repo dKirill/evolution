@@ -11,7 +11,9 @@ SOURCES += \
     src/game/Route.cpp \
     src/evolution/Gene.cpp \
     src/evolution/Individual.cpp \
-    src/evolution/Generation.cpp
+    src/evolution/Generation.cpp \
+    src/gui/GraphicsGridView.cpp \
+    src/gui/GridView.cpp
 
 HEADERS += \
     src/game/Grid.h \
@@ -27,9 +29,15 @@ HEADERS += \
     src/game/Route.h \
     src/evolution/Gene.h \
     src/evolution/Individual.h \
-    src/evolution/Generation.h
+    src/evolution/Generation.h \
+    src/gui/GraphicsGridView.h \
+    src/gui/GridView.h
 
-QT += core
+QT += core widgets gui
 CONFIG += c++11
 
 INCLUDEPATH += src/
+
+FORMS += \
+    src/gui/GraphicsGridView.ui \
+    src/gui/GridView.ui

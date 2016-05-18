@@ -2,6 +2,7 @@
 #define GRID_H
 
 /*--------------------------------------------------------------------------*/
+#include <functional>
 #include <vector>
 /*--------------------------------------------------------------------------*/
 #include <boost/noncopyable.hpp>
@@ -11,7 +12,7 @@
 
 enum class GridState : uint8_t
 {
-	Initial,
+	Initial = 0,
 	LeftPlayerPlacing,
 	RightPlayerPlacing,
 	Turn
@@ -43,10 +44,14 @@ public:
 	GridState state() const;
 	UnitsInt unitsPerPlayer() const;
 
+	//callback setter
+	void setOnStateChangeCallback(std::function<void()> cback);
+
 private:
 	Grid();
 
 	std::vector<std::vector<pCell>> _grid;
+	std::function<void()> _onStateChangeCallback;
 	pPlayer _permissionOwner;
 	GridState _state = GridState::Initial;
 	UnitsInt _unitsPerPlayer = 0;

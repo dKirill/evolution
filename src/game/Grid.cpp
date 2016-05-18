@@ -195,6 +195,8 @@ CellInt Grid::rowNum() const
 /***********************************************/
 void Grid::setState(const GridState newstate, pPlayer permissionRecipient)
 {
+	bool stateChanged = false;
+
 	_permissionOwner = permissionRecipient;
 
 	switch(newstate)
@@ -243,7 +245,14 @@ void Grid::setState(const GridState newstate, pPlayer permissionRecipient)
 		}
 	}
 
+	stateChanged = _state != newstate;
 	_state = newstate;
+
+	if(stateChanged)
+	{
+		qDebug() << "state changed; callbackin'";
+		_onStateChangeCallback();
+	}
 }
 
 /***********************************************/
@@ -256,6 +265,12 @@ GridState Grid::state() const
 UnitsInt Grid::unitsPerPlayer() const
 {
 	return _unitsPerPlayer;
+}
+
+/***********************************************/
+void Grid::setOnStateChangeCallback(std::function<void ()> cback)
+{
+	_onStateChangeCallback = cback;
 }
 
 /***********************************************/
