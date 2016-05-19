@@ -23,6 +23,12 @@ GraphicsGridView::~GraphicsGridView()
 }
 
 /***********************************************/
+void GraphicsGridView::clear()
+{
+	_ui->gv->scene()->clear();
+}
+
+/***********************************************/
 void GraphicsGridView::drawGrid(pGrid grid)
 {
 	drawGrid(grid, 0, 0, grid->colNum() - 1, grid->rowNum() - 1);
@@ -31,7 +37,7 @@ void GraphicsGridView::drawGrid(pGrid grid)
 /***********************************************/
 void GraphicsGridView::drawGrid(pGrid grid, const CellInt topLeftCol, const CellInt topLeftRow, const CellInt botRightCol, const CellInt botRightRow)
 {
-	_ui->gv->scene()->clear();
+	clear();
 	_ui->gv->scene()->setSceneRect(0, 0, _ui->gv->viewport()->width(), _ui->gv->viewport()->height());
 	auto viewedColNum = botRightCol - topLeftCol;
 	auto viewedRowNum = botRightRow - topLeftRow;
@@ -92,7 +98,7 @@ void GraphicsGridView::drawGrid(pGrid grid, const CellInt topLeftCol, const Cell
 	pxsize = std::min(hpxsize, vpxsize);
 	font.setPixelSize(pxsize);
 
-	//TODO consider redrawing
+	//TODO consider redrawing upd: wat?
 	//draw cell's insides
 	for(auto col = topLeftCol; col < botRightCol; ++col)
 	{

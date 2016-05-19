@@ -19,6 +19,7 @@ public:
 	explicit GraphicsGridView(QWidget *parent = 0);
 	~GraphicsGridView();
 
+	void clear();
 	///draws whole grid
 	void drawGrid(pGrid grid);
 	///draws specified rect of grid

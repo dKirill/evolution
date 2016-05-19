@@ -79,7 +79,7 @@ void Cell::free()
 /***********************************************/
 pCell Cell::getEmptyCopy() const
 {
-	return pCell(new Cell(cellType(), column(), row()));
+	return std::make_shared<Cell>(cellType(), column(), row());
 }
 
 /***********************************************/

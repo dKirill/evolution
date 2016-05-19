@@ -22,7 +22,7 @@ public:
 	Players players() const;
 	///might not exist
 	pIndividual previous() const;
-	Tournament tournament() const;
+	const Tournament& tournament() const;
 
 private:
 	///evolve constructor

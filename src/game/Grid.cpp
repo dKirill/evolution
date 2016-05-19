@@ -37,7 +37,7 @@ Grid::Grid(const std::string& init)
 			if(!(ss >> cellTypeInt))
 				THROW("Error while reading grid");
 
-			cell = pCell(new Cell(Cell::intToCellType(cellTypeInt), col, row));
+			cell = std::make_shared<Cell>(Cell::intToCellType(cellTypeInt), col, row);
 			columnVecRef.push_back(cell);
 		}
 	}
@@ -73,7 +73,7 @@ pRoute Grid::buildRoute(pCell c1, pCell c2) const
 	pCell curr = c1;
 	std::set<pCell> visited;
 	pUnit attacker = c1->occupier();
-	pRoute route(new Route(curr, attacker));
+	pRoute route = std::make_shared<Route>(curr, attacker);
 
 	visited.insert(curr);
 
@@ -178,6 +178,41 @@ pGrid Grid::getEmptyCopy() const
 }
 
 /***********************************************/
+std::tuple<CellInt, CellInt, CellInt, CellInt> Grid::startingLeftSideRect() const
+{
+	CellInt tlRow = 0;
+	CellInt tlCol = 0;
+	CellInt brRow = 0;
+	CellInt brCol = 0;
+
+	for(const auto& vref : _grid)
+	{
+		for(const auto& cref : vref)
+		{
+			if(cref->cellType() == CellType::LeftStartingArea)
+			{
+				const auto& row = cref->row();
+				const auto& col = cref->column();
+
+				if(row < tlRow || col < tlCol)
+				{
+					tlRow = row;
+					tlCol = col;
+				}
+
+				if(row > brRow || col > brCol)
+				{
+					brRow = row;
+					brCol = col;
+				}
+			}
+		}
+	}
+
+	return std::make_tuple(tlRow, tlCol, brRow, brCol);
+}
+
+/***********************************************/
 bool Grid::exists(const CellInt col, const CellInt row) const
 {
 	if(col >= 0 && col < colNum() && row >= 0 && row < rowNum())
@@ -248,7 +283,7 @@ void Grid::setState(const GridState newstate, pPlayer permissionRecipient)
 	stateChanged = _state != newstate;
 	_state = newstate;
 
-	if(stateChanged)
+	if(_callbackSet && stateChanged)
 	{
 		qDebug() << "state changed; callbackin'";
 		_onStateChangeCallback();
@@ -271,6 +306,7 @@ UnitsInt Grid::unitsPerPlayer() const
 void Grid::setOnStateChangeCallback(std::function<void ()> cback)
 {
 	_onStateChangeCallback = cback;
+	_callbackSet = true;
 }
 
 /***********************************************/

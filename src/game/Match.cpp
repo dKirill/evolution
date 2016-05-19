@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------------*/
 
 /***********************************************/
-Match::Match(pGrid grid_, pPlayer player1_, pPlayer player2_, const RoundInt numOfRounds) : _grid(grid_), _player1(player1_), _player2(player2_), _roundsNum(numOfRounds), _roundsPlayed(0), _scoreTable(new ScoreTable)
+Match::Match(pGrid grid_, pPlayer player1_, pPlayer player2_, const RoundInt numOfRounds) : _grid(grid_), _player1(player1_), _player2(player2_), _roundsNum(numOfRounds), _roundsPlayed(0), _scoreTable(std::make_shared<ScoreTable>())
 {
 	setAutoDelete(false);
 }

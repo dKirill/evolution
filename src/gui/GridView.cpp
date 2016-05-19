@@ -43,6 +43,6 @@ void GridView::update()
 
 	_ui->comboState->setCurrentIndex(static_cast<int>(_grid->state()));
 	_ui->ggv->drawGrid(_grid);
-	//TODO update things
+	//TODO update players
 }
 

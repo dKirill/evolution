@@ -39,6 +39,9 @@ public:
 	RangeInt distanceAchievable(pCell c1, pCell c2) const;
 	bool exists(const CellInt col, const CellInt row) const;
 	pGrid getEmptyCopy() const;
+	///assumes it IS rect. for now.
+	///rect(topLeftRow,topLeftCol,botRightRow,botRightCol)
+	std::tuple<CellInt, CellInt, CellInt, CellInt> startingLeftSideRect() const;
 	CellInt rowNum() const;
 	void setState(const GridState newstate, pPlayer permissionRecipient = pPlayer());
 	GridState state() const;
@@ -50,6 +53,7 @@ public:
 private:
 	Grid();
 
+	bool _callbackSet = false;
 	std::vector<std::vector<pCell>> _grid;
 	std::function<void()> _onStateChangeCallback;
 	pPlayer _permissionOwner;

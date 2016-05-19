@@ -23,7 +23,12 @@ public:
 	void merge(pScoreTable scoretable); //adds scoretable results to this
 	Scores scores() const;
 
+	//callback setter
+	void setOnAnyChangeCallback(std::function<void()> cback);
+
 private:
+	bool _callbackSet = false;
+	std::function<void()> _onAnyChange;
 	Scores _scores;
 };
 

@@ -42,6 +42,7 @@ private:
 
 	friend class Game;
 	friend class Grid;
+	friend class Individual; // //.-
 };
 
 #endif // CELL_H

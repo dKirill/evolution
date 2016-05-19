@@ -26,7 +26,24 @@ Individual::~Individual()
 /***********************************************/
 pIndividual Individual::evolve(RandEngine& reng)
 {
+	static const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+	static const quint32 randomStringLength = 3;
+	QString randomString;
 	pIndividual indi(new Individual);
+	std::uniform_int_distribution<quint8> uiDist;
+
+	uiDist.param(decltype(uiDist)::param_type(0, possibleCharacters.length() - 1));
+
+	//randomize name
+	for(auto i = decltype(randomStringLength){0}; i < randomStringLength; ++i)
+	{
+		auto index = uiDist(reng);
+		auto nextChar = possibleCharacters.at(index);
+
+		randomString.append(nextChar);
+	}
+
+	indi->setName(randomString);
 
 	//copy data
 	indi->_attackPriorities = _attackPriorities;
@@ -69,71 +86,41 @@ UnitType toUnitType(const GeneInt gint)
 /***********************************************/
 void Individual::initGrid(pGame game, Side side)
 {
-	std::vector<std::tuple<CellInt, CellInt, pCell>> startingAreaPrototype; //0 - column, 1 - row
-	CellType typeToFind = side == Side::Left ? CellType::LeftStartingArea : CellType::RightStartingArea;
-	CellInt lowestColumn = std::numeric_limits<CellInt>::max();
-	CellInt lowestRow = std::numeric_limits<CellInt>::max();
-	decltype(_startingPositions)::const_iterator stpciter;
+	initGrid(game->grid(), side, [&](pCell cell, pUnit unit) { game->place(cell, unit); }, [&]() -> RandEngine& { return game->randEngine(); });
+}
 
-	for(CellInt row = 0; row < game->grid()->rowNum(); ++row)
-	{
-		std::vector<std::tuple<CellInt, CellInt, pCell>> temp;
+/***********************************************/
+void Individual::initGrid(pGrid grid, Side side)
+{
+	initGrid(grid, side, [&](pCell cell, pUnit unit)
+						{
+							switch(grid->state())
+							{
+								case(GridState::Initial):
+								case(GridState::Turn):
+									THROW("State err");
+								case(GridState::LeftPlayerPlacing):
+								{
+									break;
+								}
+								case(GridState::RightPlayerPlacing):
+								{
+									break;
+								}
+							}
 
-		for(CellInt column = 0; column < game->grid()->colNum(); ++column)
-		{
-			if(game->grid()->at(column, row)->cellType() == typeToFind)
-			{
-				lowestColumn = std::min(column, lowestColumn);
-				lowestRow = std::min(row, lowestRow);
-				temp.push_back(std::make_tuple(column, row, game->grid()->at(column, row)));
-			}
-		}
+							if(unit->owner() != shared_from_this())
+								THROW("Placing err");
 
-		if(side == Side::Right) //mirror
-		{
-			for(CellInt i = 0, j = temp.size() - 1; i < j; ++i, --j)
-				std::swap(temp.at(i), temp.at(j));
-		}
+							if(cell->occupiable() == false)
+								THROW("Placing err 2");
 
-		startingAreaPrototype.insert(startingAreaPrototype.end(), temp.begin(), temp.end());
-	}
+							if(cell->occupier())
+								THROW("Placing err 3");
 
-	if(std::min(lowestColumn, lowestRow) > 0)
-	{
-		for(auto& tupref : startingAreaPrototype)
-		{
-			std::get<0>(tupref) -= lowestColumn;
-			std::get<1>(tupref) -= lowestRow;
-		}
-	}
-
-	if(_startingPositions.size() == 0) //not initialized
-	{
-		std::uniform_int_distribution<GeneInt> uiDist;
-
-		uiDist.param(std::uniform_int_distribution<GeneInt>::param_type(toGeneInt(UnitType::Archer), toGeneInt(UnitType::Swordsman)));
-
-		for(auto const& gridref : startingAreaPrototype)
-			_startingPositions.push_back(std::make_tuple(std::get<0>(gridref), std::get<1>(gridref), Gene(1, toGeneInt(UnitType::Archer), toGeneInt(UnitType::Swordsman), uiDist(game->randEngine()))));
-	}
-	else
-	{
-		if(startingAreaPrototype.size() != _startingPositions.size())
-			THROW("Grid isn't compatible 1");
-
-		if(std::equal(startingAreaPrototype.begin(), startingAreaPrototype.end(), _startingPositions.begin(), [](decltype(*std::begin(startingAreaPrototype)) sapref, decltype(*std::begin(_startingPositions)) spref) { return (std::get<0>(sapref) == std::get<0>(spref)) && (std::get<1>(sapref) == std::get<1>(spref)); }))
-			THROW("Grid isn't compatible 2");
-	}
-
-	stpciter = _startingPositions.begin();
-
-	for(auto& sapref : startingAreaPrototype)
-	{
-		if(stpciter == _startingPositions.end())
-			THROW("Grid init logic err");
-
-		game->place(std::get<2>(sapref), pUnit(new Unit(shared_from_this(), toUnitType(std::get<2>(*stpciter).value()))));
-	}
+							cell->occupy(unit);
+						}
+	, []() -> RandEngine& { THROW("This method shall not be called except by views"); });
 }
 
 /***********************************************/
@@ -216,4 +203,75 @@ void Individual::init(std::map<UnitType, Gene>& aps, RandEngine& reng)
 	aps.insert(std::make_pair(UnitType::Horseman, Gene(1, toGeneInt(UnitType::Swordsman), toGeneInt(UnitType::Archer), uiDist(reng))));
 	aps.insert(std::make_pair(UnitType::Pikeman, Gene(1, toGeneInt(UnitType::Swordsman), toGeneInt(UnitType::Archer), uiDist(reng))));
 	aps.insert(std::make_pair(UnitType::Swordsman, Gene(1, toGeneInt(UnitType::Swordsman), toGeneInt(UnitType::Archer), uiDist(reng))));
+}
+
+/***********************************************/
+void Individual::initGrid(pGrid grid, Side side, std::function<void (pCell, pUnit)> placer, std::function<RandEngine&()> getRengine)
+{
+	std::vector<std::tuple<CellInt, CellInt, pCell>> startingAreaPrototype; //0 - column, 1 - row
+	CellType typeToFind = side == Side::Left ? CellType::LeftStartingArea : CellType::RightStartingArea;
+	CellInt lowestColumn = std::numeric_limits<CellInt>::max();
+	CellInt lowestRow = std::numeric_limits<CellInt>::max();
+	decltype(_startingPositions)::const_iterator stpciter;
+
+	//extract area to fill
+	for(CellInt row = 0; row < grid->rowNum(); ++row)
+	{
+		std::vector<std::tuple<CellInt, CellInt, pCell>> temp;
+
+		for(CellInt column = 0; column < grid->colNum(); ++column)
+		{
+			if(grid->at(column, row)->cellType() == typeToFind)
+			{
+				lowestColumn = std::min(column, lowestColumn);
+				lowestRow = std::min(row, lowestRow);
+				temp.push_back(std::make_tuple(column, row, grid->at(column, row)));
+			}
+		}
+
+		if(side == Side::Right) //mirror
+		{
+			for(CellInt i = 0, j = temp.size() - 1; i < j; ++i, --j)
+				std::swap(temp.at(i), temp.at(j));
+		}
+
+		startingAreaPrototype.insert(startingAreaPrototype.end(), temp.begin(), temp.end());
+	}
+
+	if(std::min(lowestColumn, lowestRow) > 0)
+	{
+		for(auto& tupref : startingAreaPrototype)
+		{
+			std::get<0>(tupref) -= lowestColumn;
+			std::get<1>(tupref) -= lowestRow;
+		}
+	}
+
+	if(_startingPositions.size() == 0) //not initialized
+	{
+		std::uniform_int_distribution<GeneInt> uiDist;
+
+		uiDist.param(std::uniform_int_distribution<GeneInt>::param_type(toGeneInt(UnitType::Archer), toGeneInt(UnitType::Swordsman)));
+
+		for(auto const& gridref : startingAreaPrototype)
+			_startingPositions.push_back(std::make_tuple(std::get<0>(gridref), std::get<1>(gridref), Gene(1, toGeneInt(UnitType::Archer), toGeneInt(UnitType::Swordsman), uiDist(getRengine()))));
+	}
+	else
+	{
+		if(startingAreaPrototype.size() != _startingPositions.size())
+			THROW("Grid isn't compatible 1");
+
+		if(std::equal(startingAreaPrototype.begin(), startingAreaPrototype.end(), _startingPositions.begin(), [](decltype(*std::begin(startingAreaPrototype)) sapref, decltype(*std::begin(_startingPositions)) spref) { return (std::get<0>(sapref) == std::get<0>(spref)) && (std::get<1>(sapref) == std::get<1>(spref)); }))
+			THROW("Grid isn't compatible 2");
+	}
+
+	stpciter = _startingPositions.begin();
+
+	for(auto& sapref : startingAreaPrototype)
+	{
+		if(stpciter == _startingPositions.end())
+			THROW("Grid init logic err");
+
+		placer(std::get<2>(sapref), std::make_shared<Unit>(shared_from_this(), toUnitType(std::get<2>(*stpciter).value())));
+	}
 }

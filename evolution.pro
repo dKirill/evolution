@@ -13,7 +13,10 @@ SOURCES += \
     src/evolution/Individual.cpp \
     src/evolution/Generation.cpp \
     src/gui/GraphicsGridView.cpp \
-    src/gui/GridView.cpp
+    src/gui/GridView.cpp \
+    src/gui/GenerationView.cpp \
+    src/game/Player.cpp \
+    src/gui/ScoreTableView.cpp
 
 HEADERS += \
     src/game/Grid.h \
@@ -31,7 +34,9 @@ HEADERS += \
     src/evolution/Individual.h \
     src/evolution/Generation.h \
     src/gui/GraphicsGridView.h \
-    src/gui/GridView.h
+    src/gui/GridView.h \
+    src/gui/GenerationView.h \
+    src/gui/ScoreTableView.h
 
 QT += core widgets gui
 CONFIG += c++11
@@ -40,4 +45,6 @@ INCLUDEPATH += src/
 
 FORMS += \
     src/gui/GraphicsGridView.ui \
-    src/gui/GridView.ui
+    src/gui/GridView.ui \
+    src/gui/GenerationView.ui \
+    src/gui/ScoreTableView.ui

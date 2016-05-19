@@ -102,7 +102,7 @@ pIndividual Generation::previous() const
 }
 
 /***********************************************/
-Tournament Generation::tournament() const
+const Tournament& Generation::tournament() const
 {
 	return _tournament;
 }

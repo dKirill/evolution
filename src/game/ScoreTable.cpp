@@ -21,7 +21,10 @@ void ScoreTable::addPlayer(pPlayer player)
 	if(std::find_if(_scores.begin(), _scores.end(), FindByPlayer(player)) != _scores.end())
 		THROW("Player already presented");
 
-	_scores.insert(pScore(new Score(player)));
+	_scores.insert(std::make_shared<Score>(player));
+
+	if(_callbackSet)
+		_onAnyChange();
 }
 
 /***********************************************/
@@ -52,6 +55,9 @@ void ScoreTable::addScore(pPlayer player, ScoreEnum score)
 	}
 	else
 		THROW("Player not found");
+
+	if(_callbackSet)
+		_onAnyChange();
 }
 
 /***********************************************/
@@ -70,10 +76,20 @@ void ScoreTable::merge(pScoreTable scoretable)
 		else
 			_scores.insert(scoreref);
 	}
+
+	if(_callbackSet)
+		_onAnyChange();
 }
 
 /***********************************************/
 Scores ScoreTable::scores() const
 {
 	return _scores;
+}
+
+/***********************************************/
+void ScoreTable::setOnAnyChangeCallback(std::function<void ()> cback)
+{
+	_onAnyChange = cback;
+	_callbackSet = true;
 }

@@ -7,14 +7,14 @@
 /*--------------------------------------------------------------------------*/
 
 /***********************************************/
-Tournament::Tournament(pGrid grid_, const Players& players, const RoundInt roundsPerMatch) : _grid(grid_), _players(players), _roundsPerMatch(roundsPerMatch), _scoreTable(new ScoreTable)
+Tournament::Tournament(pGrid grid_, const Players& players, const RoundInt roundsPerMatch) : _grid(grid_), _players(players), _roundsPerMatch(roundsPerMatch), _scoreTable(std::make_shared<ScoreTable>())
 {
 	for(auto const& player1ref : _players)
 	{
 		for(auto const& player2ref : _players)
 		{
 			if(player1ref != player2ref)
-				_matches.insert(pMatch(new Match(grid(), player1ref, player2ref, _roundsPerMatch)));
+				_matches.insert(std::make_shared<Match>(grid(), player1ref, player2ref, _roundsPerMatch));
 		}
 	}
 }
