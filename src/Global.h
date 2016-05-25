@@ -3,13 +3,13 @@
 
 /*--------------------------------------------------------------------------*/
 #include <cstdint>
+#include <ctime>
 #include <exception>
 #include <memory>
 #include <mutex>
 #include <random>
 #include <set>
 #include <sstream>
-#include <ctime>
 #include <vector>
 /*--------------------------------------------------------------------------*/
 #include <QtCore/QDebug>
@@ -45,18 +45,19 @@ using pScoreTable = std::shared_ptr<ScoreTable>;
 using pUnit = std::shared_ptr<Unit>;
 
 using AttackInt = uint16_t;
-using CellInt = uint16_t;
+using CellInt = int16_t;
 using HealthInt = int32_t;
 using GeneInt = uint8_t;
 using GenerationInt = uint32_t;
 using RangeInt = uint8_t;
 using RoundInt = uint8_t;
 using ScoreInt = uint8_t;
-using UnitsInt = uint8_t;
+using UnitsInt = uint16_t;
 
 using AttackFloat = float;
 using ModifierFloat = float;
 
+using Cells = std::set<pCell>;
 using Individuals = std::set<pIndividual>;
 using Matches = std::set<pMatch>;
 using Players = std::set<pPlayer>;
@@ -81,7 +82,7 @@ private:
 };
 
 //defines
-#define THROW(x) { std::stringstream ss; ss << "Error: " << x << "; func: " << __PRETTY_FUNCTION__; throw Exception(ss.str()); }
+#define THROW(x) { std::stringstream ss; ss << "ERROR INFO: \"" << x << "\"; FILE: \"" << __FILE__ << "\"; FUNC: \"" << __PRETTY_FUNCTION__ << "\" LINE: " << __LINE__; throw Exception(ss.str()); }
 
 #endif // GLOBAL_H
 

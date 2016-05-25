@@ -1,6 +1,7 @@
 /*--------------------------------------------------------------------------*/
 #include <QtCore/QThreadPool>
 /*--------------------------------------------------------------------------*/
+#include "game/Grid.h"
 #include "game/Match.h"
 #include "game/ScoreTable.h"
 #include "game/Tournament.h"
@@ -14,7 +15,7 @@ Tournament::Tournament(pGrid grid_, const Players& players, const RoundInt round
 		for(auto const& player2ref : _players)
 		{
 			if(player1ref != player2ref)
-				_matches.insert(std::make_shared<Match>(grid(), player1ref, player2ref, _roundsPerMatch));
+				_matches.insert(std::make_shared<Match>(grid()->getEmptyCopy(), player1ref, player2ref, _roundsPerMatch));
 		}
 	}
 }
@@ -37,9 +38,7 @@ void Tournament::run()
 	qDebug() << "Tournament starts";
 	//start every match in separate thread
 	for(auto const& matchref : _matches)
-	{
 		QThreadPool::globalInstance()->start(matchref.get());
-	}
 
 	//wait for every thread to finish
 	QThreadPool::globalInstance()->waitForDone();

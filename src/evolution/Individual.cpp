@@ -151,39 +151,46 @@ void Individual::turn(pGame game)
 	{
 		pUnit unit = aref->occupier();
 		pCell dest;
-		std::set<pCell, std::function<bool(pCell, pCell)>> sorted(
-																[&](pCell c1, pCell c2) -> bool
-																{
-																	RangeInt distance1 = game->grid()->distanceAchievable(aref, c1);
-																	RangeInt distance2 = game->grid()->distanceAchievable(aref, c2);
-																	bool c1reachable = game->grid()->attackReachable(aref, c1);
-																	bool c2reachable = game->grid()->attackReachable(aref, c2);
-																	bool equalPriorities = this->_attackPriorities.at(unit->type()).at(c1->occupier()->type()).value() == this->_attackPriorities.at(unit->type()).at(c2->occupier()->type()).value();
+		Cells emptied;
+		auto sortfunct = [&](pCell c1, pCell c2) -> bool
+		{
+			auto dachiv1 = game->grid()->distanceAchievable(aref, c1);
+			auto dachiv2 = game->grid()->distanceAchievable(aref, c2);
+			auto distance1 = std::get<0>(dachiv1);
+			auto distance2 = std::get<0>(dachiv2);
+			bool c1reachable = game->grid()->attackReachable(aref, c1);
+			bool c2reachable = game->grid()->attackReachable(aref, c2);
+			bool equalPriorities = this->_attackPriorities.at(unit->type()).at(c1->occupier()->type()).value() == this->_attackPriorities.at(unit->type()).at(c2->occupier()->type()).value();
 
-																	//if aref can attack c1 or c2
-																	if(c1reachable || c2reachable)
-																	{
-																		//if both within range of attack
-																		if(c1reachable && c2reachable)
-																		{
-																			//if equal priorities, compare distance; else compare priorities
-																			if(equalPriorities)
-																				return distance1 < distance2;
-																			else
-																				return this->_attackPriorities.at(unit->type()).at(c1->occupier()->type()).value() < this->_attackPriorities.at(unit->type()).at(c2->occupier()->type()).value();
-																		}
-																		//else pick reachable
-																		else
-																			return c1reachable < c2reachable;
-																	}
-																	//if both r too far, compare distance and pick closest
-																	else
-																		return distance1 < distance2;
-																});
+			//if aref can attack c1 or c2
+			if(c1reachable || c2reachable)
+			{
+				//if both within range of attack
+				if(c1reachable && c2reachable)
+				{
+					//if equal priorities, compare distance; else compare priorities
+					if(equalPriorities)
+						return distance1 < distance2;
+					else
+						return this->_attackPriorities.at(unit->type()).at(c1->occupier()->type()).value() < this->_attackPriorities.at(unit->type()).at(c2->occupier()->type()).value();
+				}
+				//else pick reachable
+				else
+					return c1reachable < c2reachable;
+			}
+			//if both r too far, compare distance and pick closest
+			else
+				return distance1 < distance2;
+		};
+		std::set<pCell, decltype(sortfunct)> sorted(sortfunct);
 
 		sorted.insert(enemies.begin(), enemies.end());
 		dest = *(sorted.begin());
-		game->process(game->grid()->buildRoute(aref, dest));
+		emptied = game->process(game->grid()->buildRoute(aref, dest));
+
+		//need to drop cell from container when enemy dies
+		for(const auto& empt : emptied)
+			enemies.erase(empt);
 	}
 }
 
@@ -199,10 +206,10 @@ void Individual::init(std::map<UnitType, Gene>& aps, RandEngine& reng)
 	std::uniform_int_distribution<GeneInt> uiDist;
 
 	uiDist.param(std::uniform_int_distribution<GeneInt>::param_type(toGeneInt(UnitType::Archer), toGeneInt(UnitType::Swordsman)));
-	aps.insert(std::make_pair(UnitType::Archer, Gene(1, toGeneInt(UnitType::Swordsman), toGeneInt(UnitType::Archer), uiDist(reng))));
-	aps.insert(std::make_pair(UnitType::Horseman, Gene(1, toGeneInt(UnitType::Swordsman), toGeneInt(UnitType::Archer), uiDist(reng))));
-	aps.insert(std::make_pair(UnitType::Pikeman, Gene(1, toGeneInt(UnitType::Swordsman), toGeneInt(UnitType::Archer), uiDist(reng))));
-	aps.insert(std::make_pair(UnitType::Swordsman, Gene(1, toGeneInt(UnitType::Swordsman), toGeneInt(UnitType::Archer), uiDist(reng))));
+	aps.insert(std::make_pair(UnitType::Archer, Gene(1, toGeneInt(UnitType::Archer), toGeneInt(UnitType::Swordsman), uiDist(reng))));
+	aps.insert(std::make_pair(UnitType::Horseman, Gene(1, toGeneInt(UnitType::Archer), toGeneInt(UnitType::Swordsman), uiDist(reng))));
+	aps.insert(std::make_pair(UnitType::Pikeman, Gene(1, toGeneInt(UnitType::Archer), toGeneInt(UnitType::Swordsman), uiDist(reng))));
+	aps.insert(std::make_pair(UnitType::Swordsman, Gene(1, toGeneInt(UnitType::Archer), toGeneInt(UnitType::Swordsman), uiDist(reng))));
 }
 
 /***********************************************/
@@ -247,6 +254,19 @@ void Individual::initGrid(pGrid grid, Side side, std::function<void (pCell, pUni
 		}
 	}
 
+	//sort by row+col so it's easier to compare set to vector
+	std::sort(startingAreaPrototype.begin(), startingAreaPrototype.end(),
+				[](decltype(startingAreaPrototype)::const_reference arg1, decltype(arg1) arg2) -> bool
+				  {
+					  if(std::get<0>(arg1) < std::get<0>(arg2))
+						  return true;
+					  else if(std::get<0>(arg1) == std::get<0>(arg2) && std::get<1>(arg1) < std::get<1>(arg2))
+						  return true;
+					  else
+						  return false;
+				  }
+			);
+
 	if(_startingPositions.size() == 0) //not initialized
 	{
 		std::uniform_int_distribution<GeneInt> uiDist;
@@ -255,14 +275,44 @@ void Individual::initGrid(pGrid grid, Side side, std::function<void (pCell, pUni
 
 		for(auto const& gridref : startingAreaPrototype)
 			_startingPositions.push_back(std::make_tuple(std::get<0>(gridref), std::get<1>(gridref), Gene(1, toGeneInt(UnitType::Archer), toGeneInt(UnitType::Swordsman), uiDist(getRengine()))));
+
+		//sort by row+col so it's easier to compare set to vector
+		std::sort(_startingPositions.begin(), _startingPositions.end(),
+					[](decltype(_startingPositions)::const_reference arg1, decltype(arg1) arg2) -> bool
+					  {
+						  if(std::get<0>(arg1) < std::get<0>(arg2))
+							  return true;
+						  else if(std::get<0>(arg1) == std::get<0>(arg2) && std::get<1>(arg1) < std::get<1>(arg2))
+							  return true;
+						  else
+							  return false;
+					  }
+				);
 	}
 	else
 	{
 		if(startingAreaPrototype.size() != _startingPositions.size())
 			THROW("Grid isn't compatible 1");
 
-		if(std::equal(startingAreaPrototype.begin(), startingAreaPrototype.end(), _startingPositions.begin(), [](decltype(*std::begin(startingAreaPrototype)) sapref, decltype(*std::begin(_startingPositions)) spref) { return (std::get<0>(sapref) == std::get<0>(spref)) && (std::get<1>(sapref) == std::get<1>(spref)); }))
+		if(!std::equal(startingAreaPrototype.begin(), startingAreaPrototype.end(), _startingPositions.begin(),
+					  [&](decltype(*std::begin(startingAreaPrototype)) sapref, decltype(*std::begin(_startingPositions)) spref)
+						{
+							if((std::get<0>(sapref) == std::get<0>(spref)) && (std::get<1>(sapref) == std::get<1>(spref)))
+								return true;
+							else
+							{
+								qWarning() << "Elems r not equal: " << std::get<0>(sapref) << ' ' << std::get<0>(spref) << "; " << std::get<1>(sapref) << ' ' << std::get<1>(spref);
+								return false;
+							}
+						}
+					  )
+		)
+		{
+			for(auto fuck : startingAreaPrototype) qWarning() << '(' << std::get<0>(fuck) << ',' << std::get<1>(fuck) << ')';
+			qCritical() << " FUCK IT ";
+			for(auto fuck : _startingPositions) qWarning() << '(' << std::get<0>(fuck) << ',' << std::get<1>(fuck) << ')';
 			THROW("Grid isn't compatible 2");
+		}
 	}
 
 	stpciter = _startingPositions.begin();

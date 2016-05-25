@@ -27,7 +27,7 @@ CellInt Cell::column() const
 }
 
 /***********************************************/
-CellType Cell::intToCellType(const uint8_t intval)
+CellType Cell::intToCellType(const uint16_t intval)
 {
 	switch(intval)
 	{

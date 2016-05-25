@@ -25,7 +25,7 @@ public:
 
 	CellType cellType() const;
 	CellInt column() const;
-	static CellType intToCellType(const uint8_t intval);
+	static CellType intToCellType(const uint16_t intval);
 	bool occupiable() const;
 	pUnit occupier() const;
 	CellInt row() const;
@@ -35,7 +35,7 @@ private:
 	pCell getEmptyCopy() const;
 	void occupy(pUnit entering);
 
-	CellType _cellType;
+	CellType _cellType = CellType::Mountain;
 	CellInt _column = 0;
 	pUnit _occupier;
 	CellInt _row = 0;

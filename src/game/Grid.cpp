@@ -16,29 +16,31 @@ Grid::Grid(const std::string& init)
 	CellInt rowNum = 0;
 	std::stringstream ss(init);
 
+	qDebug() << init.c_str();
+
 	if(!(ss >> unitsNum >> colNum >> rowNum))
 		THROW("Error while reading grid constants");
 
 	if(unitsNum > colNum * rowNum / 2 || unitsNum == 0 || colNum == 0 || rowNum == 0)
 		THROW("Invalid grid constants. uNum=" << unitsNum << ", cNum=" << colNum << ", rNum=" << rowNum);
 
-	_grid.reserve(colNum);
+	_grid.resize(rowNum);
 
-	for(CellInt col = 0; col < colNum; ++col)
+	for(CellInt row = 0; row < rowNum; ++row)
 	{
-		_grid.at(col).reserve(rowNum);
-		std::vector<pCell>& columnVecRef = _grid.at(col);
+		_grid.at(row).resize(colNum);
+		std::vector<pCell>& rowVecRef = _grid.at(row);
 
-		for(CellInt row = 0; row < rowNum; ++row)
+		for(CellInt col = 0; col < colNum; ++col)
 		{
 			pCell cell;
-			uint8_t cellTypeInt;
+			uint16_t cellTypeInt;
 
 			if(!(ss >> cellTypeInt))
 				THROW("Error while reading grid");
 
 			cell = std::make_shared<Cell>(Cell::intToCellType(cellTypeInt), col, row);
-			columnVecRef.push_back(cell);
+			rowVecRef.at(col) = cell;
 		}
 	}
 }
@@ -58,13 +60,17 @@ bool Grid::adjacency(pCell c1, pCell c2)
 /***********************************************/
 pCell Grid::at(const CellInt col, const CellInt row) const
 {
-	return _grid.at(col).at(row);
+	return _grid.at(row).at(col);
 }
 
 /***********************************************/
 bool Grid::attackReachable(pCell c1, pCell c2) const
 {
-	return distanceAchievable(c1, c2) <= c1->occupier()->moveRange() - 1 + c1->occupier()->attackRange();
+	auto dachiv = distanceAchievable(c1, c2);
+	auto dist = std::get<0>(dachiv);
+	bool achiv = std::get<1>(dachiv);
+
+	return achiv && (dist <= c1->occupier()->moveRange() - 1 + c1->occupier()->attackRange());
 }
 
 /***********************************************/
@@ -72,14 +78,37 @@ pRoute Grid::buildRoute(pCell c1, pCell c2) const
 {
 	pCell curr = c1;
 	std::set<pCell> visited;
+	std::vector<pCell> visitedvec;
 	pUnit attacker = c1->occupier();
 	pRoute route = std::make_shared<Route>(curr, attacker);
 
 	visited.insert(curr);
+	visitedvec.push_back(curr);
 
-	while(curr != c2)
+	while((curr->row() != c2->row() || curr->column() != c2->column()) && attacker->moveRange() > route->length())
 	{
-		std::set<pCell, std::function<bool(pCell, pCell)>> availableMoves([c2](pCell lc1, pCell lc2) -> bool { return distance(lc1, c2) < distance(lc2, c2); }); // first element is closest to dest.
+		auto sortfunct = [c1, c2](pCell lc1, pCell lc2) -> bool
+		{
+			if(lc1->occupier() || lc2->occupier())
+			{
+				if(!lc1->occupier())
+					return true;
+				else if(!lc2->occupier())
+					return false;
+
+				if(lc1->occupier()->owner() == lc2->occupier()->owner())
+					return fdistance(lc1, c2) < fdistance(lc2, c2);
+
+				//we can't go through friend, yet we can attack through enemy
+				if(lc1->occupier()->owner() == c1->occupier()->owner())
+					return false;
+				else
+					return true;
+			}
+
+			return fdistance(lc1, c2) < fdistance(lc2, c2);
+		};
+		std::set<pCell, decltype(sortfunct)> availableMoves(sortfunct); // first element is closest to dest.
 
 		//bidlokod:
 		if(exists(curr->column() + 1, curr->row()) && at(curr->column() + 1, curr->row())->occupiable() && visited.find(at(curr->column() + 1, curr->row())) == visited.end())
@@ -95,10 +124,22 @@ pRoute Grid::buildRoute(pCell c1, pCell c2) const
 			availableMoves.insert(at(curr->column(), curr->row() - 1));
 
 		if(availableMoves.empty())
-			THROW("Your grid is inherently flawed. No available moves");
+		{
+			qWarning() << "no available moves ._.";
+			break;
+		}
 
 		curr = *(availableMoves.begin());
-		route->addCell(curr);
+		visited.insert(curr);
+		visitedvec.push_back(curr);
+
+		if(curr->occupier() && curr->occupier()->owner() == c1->occupier()->owner())
+		{
+			qWarning() << "ally on chosen move; stopping right here";
+			break;
+		}
+		else
+			route->addCell(curr);
 	}
 
 	return route;
@@ -107,27 +148,56 @@ pRoute Grid::buildRoute(pCell c1, pCell c2) const
 /***********************************************/
 CellInt Grid::colNum() const
 {
-	return _grid.size();
+	return _grid.at(0).size();
 }
 
 /***********************************************/
-RangeInt Grid::distance(pCell c1, pCell c2)
+RangeInt Grid::distance(const pCell& c1, const pCell& c2)
 {
 	return std::abs(c1->column() - c2->column()) + std::abs(c1->row() - c2->row());
 }
 
 /***********************************************/
-RangeInt Grid::distanceAchievable(pCell c1, pCell c2) const
+double Grid::fdistance(const pCell& c1, const pCell& c2)
 {
+	return std::fabs(c1->column() - c2->column()) + std::fabs(c1->row() - c2->row());
+}
+
+/***********************************************/
+std::tuple<RangeInt, bool> Grid::distanceAchievable(pCell c1, pCell c2) const
+{
+	qDebug() << "distanceAchievable starts";
 	uint8_t dist = 0;
 	pCell curr = c1;
 	std::set<pCell> visited;
+	bool achievable = true;
 
 	visited.insert(curr);
 
 	while(curr != c2)
 	{
-		std::set<pCell, std::function<bool(pCell, pCell)>> availableMoves([c2](pCell lc1, pCell lc2) -> bool { return distance(lc1, c2) < distance(lc2, c2); }); // first element is closest to dest.
+		auto sortfunct = [c1, c2](const pCell& lc1, const pCell& lc2) -> bool
+		{
+			if(lc1->occupier() || lc2->occupier())
+			{
+				if(!lc1->occupier())
+					return true;
+				else if(!lc2->occupier())
+					return false;
+
+				if(lc1->occupier()->owner() == lc2->occupier()->owner())
+					return false;
+
+				//we can't go through friend, yet we can attack through enemy
+				if(lc1->occupier()->owner() == c1->occupier()->owner())
+					return false;
+				else
+					return true;
+			}
+
+			return fdistance(lc1, c2) < fdistance(lc2, c2);
+		};
+		std::set<pCell, decltype(sortfunct)> availableMoves(sortfunct); // first element is closest to dest.
 
 		//bidlokod:
 		if(exists(curr->column() + 1, curr->row()) && at(curr->column() + 1, curr->row())->occupiable() && visited.find(at(curr->column() + 1, curr->row())) == visited.end())
@@ -143,35 +213,46 @@ RangeInt Grid::distanceAchievable(pCell c1, pCell c2) const
 			availableMoves.insert(at(curr->column(), curr->row() - 1));
 
 		if(availableMoves.empty())
-			THROW("Your grid is inherently flawed. No available moves");
+		{
+			qWarning() << "No available moves";
+			achievable = false;
+			break;
+		}
 
 		curr = *(availableMoves.begin());
+		visited.insert(curr);
 		++dist;
+
+		//if ally we stop
+		if(curr->occupier() && curr->occupier()->owner() == c1->occupier()->owner())
+		{
+			qDebug() << dist << " - ally on chosen move";
+			achievable = false;
+			break;
+		}
 	}
 
-	return dist;
+	qDebug() << "distanceAchievable ends";
+	return std::make_tuple(dist, achievable);
 }
 
 /***********************************************/
 pGrid Grid::getEmptyCopy() const
 {
 	pGrid copy(new Grid);
-	size_t col = 0;
+	size_t row = 0;
 
-	copy->_grid.reserve(colNum());
-	copy->setState(GridState::Initial);
+	copy->_grid.resize(rowNum());
 
-	for(auto const& colVecRef : _grid)
+	for(auto const& rowVecRef : _grid)
 	{
-		size_t row = 0;
-		auto& colCopiedVecRef = copy->_grid.at(col++);
+		size_t col = 0;
+		auto& rowCopiedVecRef = copy->_grid.at(row++);
 
-		colCopiedVecRef.reserve(rowNum());
+		rowCopiedVecRef.resize(colNum());
 
-		for(auto const& cellRef : colVecRef)
-		{
-			colCopiedVecRef.at(row++) = cellRef->getEmptyCopy();
-		}
+		for(auto const& cellRef : rowVecRef)
+			rowCopiedVecRef.at(col++) = cellRef->getEmptyCopy();
 	}
 
 	return copy;
@@ -218,13 +299,13 @@ bool Grid::exists(const CellInt col, const CellInt row) const
 	if(col >= 0 && col < colNum() && row >= 0 && row < rowNum())
 		return true;
 	else
-		false;
+		return false;
 }
 
 /***********************************************/
 CellInt Grid::rowNum() const
 {
-	return _grid.at(0).size();
+	return _grid.size();
 }
 
 /***********************************************/
@@ -254,7 +335,7 @@ void Grid::setState(const GridState newstate, pPlayer permissionRecipient)
 				THROW("Impossible state change 1");
 
 			if(!_permissionOwner)
-				THROW("No _permissionOwner set");
+				THROW("No _permissionOwner set 1");
 
 			break;
 		}
@@ -264,17 +345,17 @@ void Grid::setState(const GridState newstate, pPlayer permissionRecipient)
 				THROW("Impossible state change 2");
 
 			if(!_permissionOwner)
-				THROW("No _permissionOwner set");
+				THROW("No _permissionOwner set 2");
 
 			break;
 		}
 		case(GridState::Turn):
 		{
-			if(state() != GridState::RightPlayerPlacing || state() != GridState::Turn)
+			if(state() != GridState::RightPlayerPlacing && state() != GridState::Turn)
 				THROW("Impossible state change 3");
 
 			if(!_permissionOwner)
-				THROW("No _permissionOwner set");
+				THROW("No _permissionOwner set 3");
 
 			break;
 		}

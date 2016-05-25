@@ -71,7 +71,7 @@ void GenerationView::selectionChanged(pPlayer currplayer)
 	auto leftSideRect = _grid->startingLeftSideRect();
 
 	_grid->setState(GridState::Initial); //frees all cells
-	_grid->setState(GridState::LeftPlayerPlacing, currplayer); //facepalm //.-
+	_grid->setState(GridState::LeftPlayerPlacing, currplayer); //.-
 	currplayer->initGrid(_grid, Side::Left);
 	_ui->ggv->drawGrid(_grid, std::get<0>(leftSideRect), std::get<1>(leftSideRect), std::get<2>(leftSideRect), std::get<3>(leftSideRect));
 }

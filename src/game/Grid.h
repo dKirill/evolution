@@ -33,10 +33,12 @@ public:
 	static bool adjacency(pCell c1, pCell c2);
 	pCell at(const CellInt col, const CellInt row) const;
 	bool attackReachable(pCell c1, pCell c2) const;
+	///returns route that might be incomplete if c2 is too far
 	pRoute buildRoute(pCell c1, pCell c2) const;
 	CellInt colNum() const;
-	static RangeInt distance(pCell c1, pCell c2);
-	RangeInt distanceAchievable(pCell c1, pCell c2) const;
+	static RangeInt distance(const pCell& c1, const pCell& c2);
+	static double fdistance(const pCell& c1, const pCell& c2);
+	std::tuple<RangeInt, bool> distanceAchievable(pCell c1, pCell c2) const;
 	bool exists(const CellInt col, const CellInt row) const;
 	pGrid getEmptyCopy() const;
 	///assumes it IS rect. for now.

@@ -12,6 +12,7 @@ public:
 	~Route();
 
 	void addCell(pCell cell);
+	std::vector<pCell>::size_type length() const;
 	std::vector<pCell> route() const;
 	pUnit unit() const;
 

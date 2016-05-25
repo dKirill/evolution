@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------------*/
 
 /***********************************************/
-Match::Match(pGrid grid_, pPlayer player1_, pPlayer player2_, const RoundInt numOfRounds) : _grid(grid_), _player1(player1_), _player2(player2_), _roundsNum(numOfRounds), _roundsPlayed(0), _scoreTable(std::make_shared<ScoreTable>())
+Match::Match(pGrid grid_, pPlayer player1_, pPlayer player2_, const RoundInt numOfRounds) : _grid(grid_), _player1(player1_), _player2(player2_), _roundsNum(numOfRounds)
 {
 	setAutoDelete(false);
 }
@@ -56,15 +56,20 @@ RoundInt Match::roundsPlayed() const
 /***********************************************/
 void Match::run()
 {
+	qDebug() << "Match run";
+
+	//2 games per round so each player starts first once
 	while(isOver() == false)
 	{
-		Game game1(grid()->getEmptyCopy(), player1(), player2(), false, scoreTable());
-		Game game2(grid()->getEmptyCopy(), player1(), player2(), true, scoreTable());
+		auto game1 = std::make_shared<Game>(grid()->getEmptyCopy(), player1(), player2(), false, scoreTable());
+		auto game2 = std::make_shared<Game>(grid()->getEmptyCopy(), player1(), player2(), true, scoreTable());
 
-		game1.run();
-		game2.run();
+		game1->run();
+		game2->run();
 		++_roundsPlayed;
 	}
+
+	qDebug() << "Match run success";
 }
 
 /***********************************************/

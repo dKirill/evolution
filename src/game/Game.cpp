@@ -76,12 +76,14 @@ void Game::place(pCell cell, pUnit unit)
 }
 
 /***********************************************/
-void Game::process(pRoute route)
+Cells Game::process(pRoute route)
 {
+	Cells emptied;
+
 	if(route->unit()->owner() != _currPlayer)
 		THROW("Player's trying to move opp's unit");
 
-	if(route->route().size() < 2)
+	if(route->route().size() < 1)
 		THROW("wrong route length=" << route->route().size());
 
 	if(route->unit() != route->route().at(0)->occupier())
@@ -109,12 +111,19 @@ void Game::process(pRoute route)
 				THROW("Cell is occupied by friendly unit")
 			else
 				attack(src, dest);
+
+			///occupier of dest died
+			if(!dest->occupier())
+				emptied.insert(dest);
+
 		}
 		else if(Grid::adjacency(src, dest))
 			 move(src, dest);
 		else
 			THROW("Come on, cells are not even adjacent");
 	}
+
+	return emptied;
 }
 
 /***********************************************/
@@ -126,13 +135,14 @@ RandEngine& Game::randEngine()
 /***********************************************/
 void Game::run()
 {
+	qDebug() << "Game run";
 	if(!grid() || !playerLeft() || !playerRight())
 		THROW("Grid or players are not set");
 
 	grid()->setState(GridState::Initial);
-	grid()->setState(GridState::LeftPlayerPlacing);
+	grid()->setState(GridState::LeftPlayerPlacing, playerLeft());
 	playerLeft()->initGrid(shared_from_this(), Side::Left);
-	grid()->setState(GridState::RightPlayerPlacing);
+	grid()->setState(GridState::RightPlayerPlacing, playerRight());
 	playerRight()->initGrid(shared_from_this(), Side::Right);
 
 	while(!isOver())
@@ -143,6 +153,7 @@ void Game::run()
 	}
 
 	grid()->setState(GridState::Initial);
+	qDebug() << "Game run success";
 }
 
 /***********************************************/
@@ -155,7 +166,7 @@ pScoreTable Game::scoreTable() const
 void Game::attack(pCell src, pCell dest)
 {
 	pUnit attacker = src->occupier();
-	pUnit victim = src->occupier();
+	pUnit victim = dest->occupier();
 	AttackInt damage = calcDamage(attacker, victim);
 	AttackInt retaliation = 0;
 

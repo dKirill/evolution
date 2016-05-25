@@ -6,7 +6,7 @@
 /*--------------------------------------------------------------------------*/
 #include "Global.h"
 /*--------------------------------------------------------------------------*/
-
+#include <boost/throw_exception.hpp>
 class Match : public QRunnable
 {
 public:
@@ -28,7 +28,7 @@ private:
 	pPlayer _player2;
 	uint8_t _roundsNum = 0;
 	uint8_t _roundsPlayed = 0;
-	pScoreTable _scoreTable;
+	pScoreTable _scoreTable = std::make_shared<ScoreTable>();
 };
 
 #endif // MATCH_H

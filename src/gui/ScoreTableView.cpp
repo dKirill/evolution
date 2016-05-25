@@ -43,6 +43,7 @@ void ScoreTableView::setScoreTable(pScoreTable stable)
 /***********************************************/
 void ScoreTableView::update()
 {
+	qDebug() << "ScoreTableView update";
 	_ui->tw->clearContents();
 
 	if(!_stable)

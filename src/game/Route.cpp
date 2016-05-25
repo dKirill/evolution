@@ -21,6 +21,12 @@ void Route::addCell(pCell cell)
 }
 
 /***********************************************/
+std::vector<pCell>::size_type Route::length() const
+{
+	return _route.size();
+}
+
+/***********************************************/
 std::vector<pCell> Route::route() const
 {
 	return _route;

@@ -3,7 +3,7 @@
 /*--------------------------------------------------------------------------*/
 
 /***********************************************/
-Gene::Gene(const float& mutationProbability_, const GeneInt max_, const GeneInt min_, const GeneInt value_) : _max(max_), _min(min_), _mutationProbability(mutationProbability_), _value(value_)
+Gene::Gene(const float& mutationProbability_, const GeneInt min_, const GeneInt max_, const GeneInt value_) : _min(min_), _max(max_), _mutationProbability(mutationProbability_), _value(value_)
 {
 	if(value() > max() || value () < min() || mutationProbability() > 1 || mutationProbability() < 0)
 		THROW("Invalid constants");

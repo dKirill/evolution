@@ -17,7 +17,8 @@ public:
 	pPlayer playerLeft() const;
 	pPlayer playerRight() const;
 	void place(pCell cell, pUnit unit);
-	void process(pRoute route);
+	///returns emptied cells
+	Cells process(pRoute route);
 	RandEngine& randEngine();
 	void run();
 	pScoreTable scoreTable() const;

@@ -8,7 +8,7 @@
 class Gene
 {
 public:
-	Gene(const float& mutationProbability, const GeneInt max_, const GeneInt min_, const GeneInt value_);
+	Gene(const float& mutationProbability, const GeneInt min_, const GeneInt max_, const GeneInt value_);
 	~Gene();
 
 	GeneInt max() const;
