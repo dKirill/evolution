@@ -23,7 +23,7 @@ public:
 	///draws whole grid
 	void drawGrid(pGrid grid);
 	///draws specified rect of grid
-	void drawGrid(pGrid grid, const CellInt topLeftCol, const CellInt topLeftRow, const CellInt botRightCol, const CellInt botRightRow);
+	void drawGrid(pGrid grid, const CellInt topLeftRow, const CellInt topLeftCol, const CellInt botRightRow, const CellInt botRightCol);
 
 private:
 	Ui::GraphicsGridView* _ui;

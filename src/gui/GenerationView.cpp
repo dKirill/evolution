@@ -1,5 +1,6 @@
 /*--------------------------------------------------------------------------*/
 #include "evolution/Generation.h"
+#include "evolution/Individual.h"
 #include "game/Game.h"
 #include "game/Grid.h"
 #include "game/Player.h"
@@ -12,6 +13,11 @@ GenerationView::GenerationView(QWidget* parent) : QWidget(parent), _ui(new Ui::G
 {
 	_ui->setupUi(this);
 	connect(_ui->stv, &ScoreTableView::selectionChanged, this, &GenerationView::selectionChanged);
+
+	_ui->tw->setRowCount(4);
+	_ui->tw->setColumnCount(4);
+	_ui->tw->setHorizontalHeaderLabels(QStringList() << "Archer" << "Horseman" << "Pikeman" << "Swordsman");
+	_ui->tw->setVerticalHeaderLabels(QStringList() << "Archer" << "Horseman" << "Pikeman" << "Swordsman");
 }
 
 /***********************************************/
@@ -42,6 +48,7 @@ void GenerationView::update()
 	_ui->spinGeneration->setValue(0);
 	_ui->stv->dropScoreTable();
 	_ui->ggv->clear();
+	_ui->tw->clearContents();
 
 	if(!_generation)
 	{
@@ -74,4 +81,27 @@ void GenerationView::selectionChanged(pPlayer currplayer)
 	_grid->setState(GridState::LeftPlayerPlacing, currplayer); //.-
 	currplayer->initGrid(_grid, Side::Left);
 	_ui->ggv->drawGrid(_grid, std::get<0>(leftSideRect), std::get<1>(leftSideRect), std::get<2>(leftSideRect), std::get<3>(leftSideRect));
+
+	//indi
+	pIndividual indi = std::dynamic_pointer_cast<Individual>(currplayer);
+	AttackPriorities aps;
+
+	if(!indi)
+	{
+		qWarning() << "Cant cast to indi";
+		return;
+	}
+
+	aps = indi->attackPriorities();
+	_ui->tw->clearContents();
+
+	for(int i = 0; i < 4; ++i)
+	{
+		for(int j = 0; j < 4; ++j)
+		{
+			auto item = new QTableWidgetItem(QString::number(aps.at(static_cast<UnitType>(i)).at(static_cast<UnitType>(j)).value()));
+
+			_ui->tw->setItem(i, j, item);
+		}
+	}
 }

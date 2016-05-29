@@ -14,6 +14,7 @@ const QChar nameIdDelim = '.';
 ScoreTableView::ScoreTableView(QWidget* parent) : QWidget(parent), _ui(new Ui::ScoreTableView)
 {
 	_ui->setupUi(this);
+	_ui->tw->setColumnCount(4);
 	_ui->tw->setHorizontalHeaderLabels(QStringList() << "Name" << "Wins" << "Ties" << "Loses");
 
 	connect(_ui->tw, &QTableWidget::itemSelectionChanged, this, &ScoreTableView::onSelectionChange);
@@ -52,9 +53,30 @@ void ScoreTableView::update()
 		return;
 	}
 
-	Scores scores = _stable->scores();
-	auto currrow = 0;
+	Scores setscores = _stable->scores();
+	std::vector<pScore> scores{std::begin(setscores), std::end(setscores)};
+	int currrow = 0;
+	auto sortfunct = [](pScore lscore, pScore rscore)
+	{
+		if(lscore->wins() > rscore->wins())
+			return true;
+		else if(lscore->wins() < rscore->wins())
+			return false;
 
+		if(lscore->ties() > rscore->ties())
+			return true;
+		else if(lscore->ties() < rscore->ties())
+			return false;
+
+		if(lscore->loses() < rscore->loses())
+			return true;
+		else
+			return false;
+
+		THROW("Error comparing scores");
+	};
+
+	std::sort(std::begin(scores), std::end(scores), sortfunct);
 	_ui->tw->setRowCount(scores.size());
 
 	for(const auto& sref : scores)

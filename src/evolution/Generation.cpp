@@ -7,7 +7,7 @@
 /*--------------------------------------------------------------------------*/
 
 /***********************************************/
-Generation::Generation(pGrid grid, Individuals indis) : _generation(0), _individuals(indis), _tournament(grid, players(), 3) //TODO 3-conf
+Generation::Generation(pGrid grid, Individuals indis) : _generation(0), _individuals(indis), _tournament(grid, players(), 1) //TODO 1-conf
 {
 
 }
@@ -108,7 +108,7 @@ const Tournament& Generation::tournament() const
 }
 
 /***********************************************/
-Generation::Generation(const Generation& prevgen, Individuals indis) : _generation(prevgen.generation() + 1), _individuals(indis), _tournament(prevgen.tournament().grid(), players(), 3) //TODO 3-conf
+Generation::Generation(const Generation& prevgen, Individuals indis) : _generation(prevgen.generation() + 1), _individuals(indis), _tournament(prevgen.tournament().grid(), players(), 1) //TODO 1-conf
 {
 
 }

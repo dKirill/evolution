@@ -12,9 +12,11 @@
 /*--------------------------------------------------------------------------*/
 
 /***********************************************/
-Game::Game(pGrid grid_, pPlayer playerLeft_, pPlayer playerRight_, bool ftr, pScoreTable scoreTable) : _firstTurnRight(ftr), _grid(grid_), _playerLeft(playerLeft_), _playerRight(playerRight_), _scoreTable(scoreTable)
+Game::Game(pGrid grid_, pPlayer playerLeft_, pPlayer playerRight_, bool ftr, pScoreTable scoreTable_) : _firstTurnRight(ftr), _grid(grid_), _playerLeft(playerLeft_), _playerRight(playerRight_), _scoreTable(scoreTable_)
 {
 	_rengine.seed(nextSeed());
+	scoreTable()->addPlayer(playerLeft());
+	scoreTable()->addPlayer(playerRight());
 }
 
 /***********************************************/
@@ -76,10 +78,8 @@ void Game::place(pCell cell, pUnit unit)
 }
 
 /***********************************************/
-Cells Game::process(pRoute route)
+pCell Game::process(pRoute route)
 {
-	Cells emptied;
-
 	if(route->unit()->owner() != _currPlayer)
 		THROW("Player's trying to move opp's unit");
 
@@ -110,20 +110,21 @@ Cells Game::process(pRoute route)
 			if(dest->occupier()->owner() == route->unit()->owner())
 				THROW("Cell is occupied by friendly unit")
 			else
-				attack(src, dest);
+			{
+				//if victim dies, report
+				if(!attack(src, dest))
+					return dest;
 
-			///occupier of dest died
-			if(!dest->occupier())
-				emptied.insert(dest);
-
+				break;
+			}
 		}
 		else if(Grid::adjacency(src, dest))
-			 move(src, dest);
+			move(src, dest);
 		else
 			THROW("Come on, cells are not even adjacent");
 	}
 
-	return emptied;
+	return pCell();
 }
 
 /***********************************************/
@@ -136,6 +137,8 @@ RandEngine& Game::randEngine()
 void Game::run()
 {
 	qDebug() << "Game run";
+	quint16 turnCount = 0;
+
 	if(!grid() || !playerLeft() || !playerRight())
 		THROW("Grid or players are not set");
 
@@ -150,6 +153,13 @@ void Game::run()
 		grid()->setState(GridState::Turn, nextPlayer());
 		_currPlayer->turn(shared_from_this());
 		_unitsMovedThisTurn.clear();
+
+		if(++turnCount > 150)
+		{
+			scoreTable()->addScore(playerLeft(), ScoreEnum::Tie);
+			scoreTable()->addScore(playerRight(), ScoreEnum::Tie);
+			break;
+		}
 	}
 
 	grid()->setState(GridState::Initial);
@@ -163,12 +173,13 @@ pScoreTable Game::scoreTable() const
 }
 
 /***********************************************/
-void Game::attack(pCell src, pCell dest)
+bool Game::attack(pCell src, pCell dest)
 {
 	pUnit attacker = src->occupier();
 	pUnit victim = dest->occupier();
 	AttackInt damage = calcDamage(attacker, victim);
 	AttackInt retaliation = 0;
+	bool victAlive = true;
 
 	if(Grid::distance(src, dest) > attacker->attackRange())
 		THROW("Attack range exceeded");
@@ -180,6 +191,7 @@ void Game::attack(pCell src, pCell dest)
 
 	victim->damage(damage);
 	attacker->damage(retaliation);
+	victAlive = victim->alive();
 
 	if(!victim->alive())
 		dest->free();
@@ -188,6 +200,8 @@ void Game::attack(pCell src, pCell dest)
 		src->free();
 	else if(!victim->alive()) //else they both stay at their cells
 		move(src, dest);
+
+	return victAlive;
 }
 
 /***********************************************/

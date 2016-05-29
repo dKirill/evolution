@@ -35,37 +35,30 @@ void GraphicsGridView::drawGrid(pGrid grid)
 }
 
 /***********************************************/
-void GraphicsGridView::drawGrid(pGrid grid, const CellInt topLeftCol, const CellInt topLeftRow, const CellInt botRightCol, const CellInt botRightRow)
+void GraphicsGridView::drawGrid(pGrid grid, const CellInt topLeftRow, const CellInt topLeftCol, const CellInt botRightRow, const CellInt botRightCol)
 {
 	clear();
 	_ui->gv->scene()->setSceneRect(0, 0, _ui->gv->viewport()->width(), _ui->gv->viewport()->height());
-	auto viewedColNum = botRightCol - topLeftCol;
-	auto viewedRowNum = botRightRow - topLeftRow;
+	auto viewedColNum = botRightCol - topLeftCol + 1;
+	auto viewedRowNum = botRightRow - topLeftRow + 1;
 	auto horGap = _ui->gv->scene()->width() / viewedColNum;
 	auto vertGap = _ui->gv->scene()->height() / viewedRowNum;
 	QPen gridLinePen(Qt::black); //TODO conf?
 	QPen mountainPen(Qt::darkBlue);
 	QPen startingPen(Qt::lightGray);
+	QPen textPen(Qt::yellow);
 
 	gridLinePen.setWidth(1);
 
-	//draw hor grid lines
-	for(auto x = horGap; x < _ui->gv->scene()->width(); x += horGap + gridLinePen.width())
-		_ui->gv->scene()->addLine(x, 0, x, _ui->gv->scene()->height(), gridLinePen);
-
-	//draw vert grid lines
-	for(auto y = vertGap; y < _ui->gv->scene()->height(); y += vertGap + gridLinePen.width())
-		_ui->gv->scene()->addLine(0, y, _ui->gv->scene()->width(), y, gridLinePen);
-
 	//determine appropriate pxsize
 	QFont font;
-	int vpxsize = 1;
-	int hpxsize = 1;
-	int pxsize = 1;
+	int vpntsize = 1;
+	int hpntsize = 1;
+	int pntsize = 1;
 	bool vfits = true;
-	bool hfits = false;
+	bool hfits = true;
 
-	font.setPixelSize(vpxsize);
+	font.setPointSize(vpntsize);
 
 	//max vert px size
 	while(vfits)
@@ -76,8 +69,8 @@ void GraphicsGridView::drawGrid(pGrid grid, const CellInt topLeftCol, const Cell
 			vfits = false;
 		else
 		{
-			++vpxsize;
-			font.setPixelSize(vpxsize);
+			++vpntsize;
+			font.setPointSize(vpntsize);
 		}
 	}
 
@@ -90,19 +83,18 @@ void GraphicsGridView::drawGrid(pGrid grid, const CellInt topLeftCol, const Cell
 			hfits = false;
 		else
 		{
-			++hpxsize;
-			font.setPixelSize(hpxsize);
+			++hpntsize;
+			font.setPointSize(hpntsize);
 		}
 	}
 
-	pxsize = std::min(hpxsize, vpxsize);
-	font.setPixelSize(pxsize);
+	pntsize = std::min(hpntsize, vpntsize);
+	font.setPointSize(pntsize);
 
-	//TODO consider redrawing upd: wat?
 	//draw cell's insides
-	for(auto col = topLeftCol; col < botRightCol; ++col)
+	for(auto col = topLeftCol; col < botRightCol + 1; ++col)
 	{
-		for(auto row = topLeftRow; row < botRightRow; ++row)
+		for(auto row = topLeftRow; row < botRightRow + 1; ++row)
 		{
 			pCell cell = grid->at(col, row);
 			auto x = (horGap + gridLinePen.width()) * col;
@@ -145,10 +137,19 @@ void GraphicsGridView::drawGrid(pGrid grid, const CellInt topLeftCol, const Cell
 					}
 				}
 
+				textitem->setPen(textPen);
 				_ui->gv->scene()->addItem(textitem);
 				textitem->setPos(x, y);
 			}
 		}
 	}
+
+	//draw hor grid lines
+	for(auto x = horGap; x < _ui->gv->scene()->width(); x += horGap + gridLinePen.width())
+		_ui->gv->scene()->addLine(x, 0, x, _ui->gv->scene()->height(), gridLinePen);
+
+	//draw vert grid lines
+	for(auto y = vertGap; y < _ui->gv->scene()->height(); y += vertGap + gridLinePen.width())
+		_ui->gv->scene()->addLine(0, y, _ui->gv->scene()->width(), y, gridLinePen);
 }
 

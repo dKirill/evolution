@@ -70,23 +70,8 @@ ScoreInt Score::wins() const
 }
 
 /***********************************************/
-/***********************************************/
-bool operator<(pScore lscore, pScore rscore)
+uint16_t Score::score() const
 {
-	if(lscore->wins() > rscore->wins())
-		return false;
-	else if(lscore->wins() < rscore->wins())
-		return true;
-
-	if(lscore->ties() > rscore->ties())
-		return false;
-	else if(lscore->ties() < rscore->ties())
-		return true;
-
-	if(lscore->loses() > rscore->loses())
-		return true;
-	else if(lscore->loses() <= rscore->loses())
-		return false;
-
-	THROW("Error comparing scores");
+	return wins() * 3 + ties() * 1;
 }
+

@@ -28,6 +28,7 @@ public:
 	ScoreInt loses() const;
 	ScoreInt ties() const;
 	ScoreInt wins() const;
+	uint16_t score() const;
 
 private:
 	ScoreInt _loses = 0;
@@ -35,7 +36,5 @@ private:
 	ScoreInt _ties = 0;
 	ScoreInt _wins = 0;
 };
-
-bool operator<(pScore lscore, pScore rscore);
 
 #endif // SCORE_H

@@ -151,9 +151,18 @@ void Individual::turn(pGame game)
 	{
 		pUnit unit = aref->occupier();
 		pCell dest;
-		Cells emptied;
 		auto sortfunct = [&](pCell c1, pCell c2) -> bool
 		{
+			if(!c1 || !c2)
+			{
+				qWarning() << "for some reason one/both cells r empty";
+
+				if(!c1 || (!c1 && !c2))
+					return false;
+				else
+					return true;
+			}
+
 			auto dachiv1 = game->grid()->distanceAchievable(aref, c1);
 			auto dachiv2 = game->grid()->distanceAchievable(aref, c2);
 			auto distance1 = std::get<0>(dachiv1);
@@ -183,14 +192,22 @@ void Individual::turn(pGame game)
 				return distance1 < distance2;
 		};
 		std::set<pCell, decltype(sortfunct)> sorted(sortfunct);
+		pCell possiblyDead;
 
+//		std::remove_if(enemies.begin(), enemies.end(), [](pCell c) { return !c->occupier(); });
 		sorted.insert(enemies.begin(), enemies.end());
 		dest = *(sorted.begin());
-		emptied = game->process(game->grid()->buildRoute(aref, dest));
 
-		//need to drop cell from container when enemy dies
-		for(const auto& empt : emptied)
-			enemies.erase(empt);
+		if(!aref or !dest)
+		{
+			qWarning() << "somefin 'rong";
+			return;
+		}
+
+		possiblyDead = game->process(game->grid()->buildRoute(aref, dest));
+
+		if(possiblyDead)
+			enemies.erase(possiblyDead);
 	}
 }
 
@@ -245,7 +262,7 @@ void Individual::initGrid(pGrid grid, Side side, std::function<void (pCell, pUni
 		startingAreaPrototype.insert(startingAreaPrototype.end(), temp.begin(), temp.end());
 	}
 
-	if(std::min(lowestColumn, lowestRow) > 0)
+	if(std::max(lowestColumn, lowestRow) > 0)
 	{
 		for(auto& tupref : startingAreaPrototype)
 		{
@@ -319,9 +336,17 @@ void Individual::initGrid(pGrid grid, Side side, std::function<void (pCell, pUni
 
 	for(auto& sapref : startingAreaPrototype)
 	{
+		stpciter = std::find_if(_startingPositions.begin(), _startingPositions.end(), [&sapref](const std::tuple<CellInt, CellInt, Gene>& tup) { return std::get<0>(sapref) == std::get<0>(tup) && std::get<1>(sapref) == std::get<1>(tup); });
+
 		if(stpciter == _startingPositions.end())
 			THROW("Grid init logic err");
 
 		placer(std::get<2>(sapref), std::make_shared<Unit>(shared_from_this(), toUnitType(std::get<2>(*stpciter).value())));
 	}
+}
+
+/***********************************************/
+AttackPriorities Individual::attackPriorities() const
+{
+	return _attackPriorities;
 }

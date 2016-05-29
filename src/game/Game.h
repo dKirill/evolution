@@ -18,13 +18,13 @@ public:
 	pPlayer playerRight() const;
 	void place(pCell cell, pUnit unit);
 	///returns emptied cells
-	Cells process(pRoute route);
+	pCell process(pRoute route);
 	RandEngine& randEngine();
 	void run();
 	pScoreTable scoreTable() const;
 
 private:
-	void attack(pCell src, pCell dest);
+	bool attack(pCell src, pCell dest);
 	AttackInt calcDamage(pUnit attacker, pUnit victim);
 	bool isOver();
 	static void move(pCell src, pCell dest);

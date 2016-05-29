@@ -166,7 +166,6 @@ double Grid::fdistance(const pCell& c1, const pCell& c2)
 /***********************************************/
 std::tuple<RangeInt, bool> Grid::distanceAchievable(pCell c1, pCell c2) const
 {
-	qDebug() << "distanceAchievable starts";
 	uint8_t dist = 0;
 	pCell curr = c1;
 	std::set<pCell> visited;
@@ -232,7 +231,6 @@ std::tuple<RangeInt, bool> Grid::distanceAchievable(pCell c1, pCell c2) const
 		}
 	}
 
-	qDebug() << "distanceAchievable ends";
 	return std::make_tuple(dist, achievable);
 }
 
@@ -275,17 +273,11 @@ std::tuple<CellInt, CellInt, CellInt, CellInt> Grid::startingLeftSideRect() cons
 				const auto& row = cref->row();
 				const auto& col = cref->column();
 
-				if(row < tlRow || col < tlCol)
-				{
-					tlRow = row;
-					tlCol = col;
-				}
+				tlRow = std::min(row, tlRow);
+				tlCol = std::min(col, tlCol);
 
-				if(row > brRow || col > brCol)
-				{
-					brRow = row;
-					brCol = col;
-				}
+				brRow = std::max(row, brRow);
+				brCol = std::max(col, brCol);
 			}
 		}
 	}

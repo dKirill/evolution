@@ -10,6 +10,7 @@
 #include "Global.h"
 /*--------------------------------------------------------------------------*/
 
+using AttackPriorities = std::map<UnitType, std::map<UnitType, Gene>>;
 class Individual : public Player, public std::enable_shared_from_this<Individual>
 {
 public:
@@ -21,13 +22,15 @@ public:
 	virtual void initGrid(pGrid grid, Side side) final;
 	virtual void turn(pGame game) final;
 
+	AttackPriorities attackPriorities() const;
+
 private:
 	Individual();
 
 	void init(std::map<UnitType, Gene>& aps, RandEngine& reng);
 	void initGrid(pGrid grid, Side side, std::function<void(pCell, pUnit)> placer, std::function<RandEngine&()> getRengine);
 
-	std::map<UnitType, std::map<UnitType, Gene>> _attackPriorities;
+	AttackPriorities _attackPriorities;
 	std::vector<std::tuple<CellInt, CellInt, Gene>> _startingPositions; //1 dimension's enough
 };
 

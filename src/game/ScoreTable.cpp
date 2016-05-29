@@ -19,7 +19,10 @@ ScoreTable::~ScoreTable()
 void ScoreTable::addPlayer(pPlayer player)
 {
 	if(std::find_if(_scores.begin(), _scores.end(), FindByPlayer(player)) != _scores.end())
-		THROW("Player already presented");
+	{
+		qWarning("Player already presented");
+		return;
+	}
 
 	_scores.insert(std::make_shared<Score>(player));
 
